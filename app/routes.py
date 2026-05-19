@@ -9,6 +9,7 @@ from io import BytesIO
 from . import database as db
 from .statistics import normality, control_charts, capability, pareto
 from .excel_export import construir_excel
+from .excel_import import parse_excel
 
 
 def create_app() -> Flask:
@@ -75,6 +76,59 @@ def create_app() -> Flask:
     @app.route("/manual")
     def manual():
         return render_template("manual.html")
+
+    @app.route("/plantillas")
+    def plantillas():
+        samples_dir = os.path.join(os.path.dirname(app.template_folder), "samples")
+        files = []
+        if os.path.isdir(samples_dir):
+            for f in sorted(os.listdir(samples_dir)):
+                if f.endswith(".xlsx"):
+                    path = os.path.join(samples_dir, f)
+                    files.append({
+                        "name": f,
+                        "size_kb": round(os.path.getsize(path) / 1024, 1),
+                    })
+        return render_template("plantillas.html", files=files)
+
+    @app.get("/samples/<path:filename>")
+    def descargar_sample(filename):
+        samples_dir = os.path.join(os.path.dirname(app.template_folder), "samples")
+        path = os.path.join(samples_dir, filename)
+        if not os.path.isfile(path) or not filename.endswith(".xlsx"):
+            abort(404)
+        return send_file(
+            path,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name=filename,
+        )
+
+    @app.post("/api/estudios/upload")
+    def api_subir_excel():
+        if "archivo" not in request.files:
+            return jsonify({"error": "No se recibió ningún archivo (campo 'archivo')."}), 400
+        f = request.files["archivo"]
+        if not f.filename or not f.filename.lower().endswith(".xlsx"):
+            return jsonify({"error": "El archivo debe ser .xlsx"}), 400
+        try:
+            content = f.read()
+            if len(content) > 5 * 1024 * 1024:
+                return jsonify({"error": "Archivo demasiado grande (máx 5 MB)."}), 400
+            payload = parse_excel(content)
+            estudio_id = db.crear_estudio(payload)
+            if payload.get("muestras"):
+                db.agregar_muestras_bulk(estudio_id, payload["muestras"])
+            return jsonify({
+                "id": estudio_id,
+                "muestras": len(payload.get("muestras", [])),
+                "ok": True,
+            }), 201
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            app.logger.exception("Error procesando Excel")
+            return jsonify({"error": f"Error procesando el archivo: {e}"}), 500
 
     # ---------- API: Estudios ----------
 

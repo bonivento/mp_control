@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Plantillas y datos de prueba{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Plantillas y datos de prueba</h1>
+  <p>Descarga archivos Excel pre-cargados con datos realistas para probar el sistema.
+     Cada archivo contiene una hoja de <strong>Trazabilidad</strong> y una hoja de
+     <strong>Datos</strong> con 25 subgrupos.</p>
+</section>
+
+<div class="card">
+  <h2>Subir un archivo Excel</h2>
+  <p class="text-muted">Selecciona uno de los archivos descargados (o el tuyo propio en el mismo
+     formato). El estudio se creará automáticamente y se abrirá la página de análisis.</p>
+  <div class="form-group">
+    <label>Archivo .xlsx</label>
+    <input type="file" id="archivo-excel" accept=".xlsx">
+  </div>
+  <div class="flex gap-md mt-1">
+    <button type="button" class="btn btn-primary" id="btn-subir">Subir y analizar</button>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver al inicio</a>
+  </div>
+  <div id="upload-feedback" class="mt-2"></div>
+</div>
+
+<div class="card">
+  <h2>Archivos de prueba disponibles</h2>
+  {% if files %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Archivo</th>
+          <th>Descripción</th>
+          <th>Estado esperado</th>
+          <th>Tamaño</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in files %}
+        {% set descripcion = {
+          '1_xr_en_control_mango.xlsx':
+            ('X̄-R · Peso de mango Tommy (25×5)', 'En control', 'green'),
+          '2_xr_fuera_de_control_mango.xlsx':
+            ('X̄-R · Peso de mango con shift de proveedor', 'Fuera de control (varios puntos + reglas Nelson)', 'red'),
+          '3_xs_en_control_brix_sandia.xlsx':
+            ('X̄-S · Grados Brix de sandía (25×10)', 'En control', 'green'),
+          '4_p_en_control_aguacate.xlsx':
+            ('p · Manchas en aguacate (n variable)', 'En control', 'green'),
+          '5_p_fuera_de_control_aguacate.xlsx':
+            ('p · Manchas en aguacate con salto de defectos', 'Fuera de control (puntos fuera de LSC)', 'red'),
+          '6_c_fuera_de_control_sabila.xlsx':
+            ('c · Defectos por lote de sábila con tendencia', 'Tendencia creciente (Reglas de Nelson)', 'orange'),
+        }.get(f.name, (f.name, '—', 'blue')) %}
+        <tr>
+          <td><strong>{{ f.name }}</strong></td>
+          <td>{{ descripcion[0] }}</td>
+          <td><span class="badge badge-{{ descripcion[2] }}">{{ descripcion[1] }}</span></td>
+          <td class="num">{{ f.size_kb }} KB</td>
+          <td><a href="{{ url_for('descargar_sample', filename=f.name) }}" class="btn btn-secondary btn-sm">Descargar</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-warning">
+      No se encontraron archivos de muestra. Ejecuta
+      <code>python samples/generar_muestras.py</code> para generarlos.
+    </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Formato del archivo</h2>
+  <p>Si quieres preparar tu propio Excel para subirlo, sigue este formato:</p>
+
+  <h3>Hoja 1: <code>Trazabilidad</code></h3>
+  <p>Dos columnas (Campo, Valor). Los campos en <strong>negrita</strong> son obligatorios.</p>
+  <table class="data-table">
+    <thead><tr><th>Campo</th><th>Ejemplo</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Nombre</strong></td><td>Peso de mango</td><td>Nombre del estudio</td></tr>
+      <tr><td><strong>Producto</strong></td><td>Mango Tommy</td><td></td></tr>
+      <tr><td><strong>Tipo</strong></td><td>variable / atributo</td><td></td></tr>
+      <tr><td><strong>Caracteristica</strong></td><td>Peso</td><td></td></tr>
+      <tr><td>Unidad</td><td>g, cm, °Bx…</td><td>Opcional</td></tr>
+      <tr><td>Analista</td><td>Juan Pérez</td><td>Opcional</td></tr>
+      <tr><td>Lote</td><td>L-2026-001</td><td>Opcional</td></tr>
+      <tr><td><strong>Tipo de grafico</strong></td><td>xr, xs, p, np, c, u</td><td></td></tr>
+      <tr><td>LSL</td><td>235</td><td>Límite inferior (variables)</td></tr>
+      <tr><td>USL</td><td>265</td><td>Límite superior (variables)</td></tr>
+      <tr><td>Tamano subgrupo</td><td>5</td><td>Para X̄-R / X̄-S</td></tr>
+      <tr><td>Notas</td><td>Observaciones…</td><td>Opcional</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-3">Hoja 2: <code>Datos</code></h3>
+  <ul>
+    <li><strong>X̄-R / X̄-S</strong>: <code>Subgrupo | Med 1 | Med 2 | … | Med N</code></li>
+    <li><strong>p / u</strong>: <code>Subgrupo | Defectivos | Tamano muestra</code></li>
+    <li><strong>np</strong>: <code>Subgrupo | Defectivos | Tamano muestra</code> (constante)</li>
+    <li><strong>c</strong>: <code>Subgrupo | Defectos</code></li>
+  </ul>
+  <p class="text-muted" style="font-size: 0.9rem;">
+    Mínimo 2 subgrupos; se recomienda 25. La primera fila es la cabecera.
+  </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/plantillas.js') }}"></script>
+{% endblock %}

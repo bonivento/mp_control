@@ -24,6 +24,7 @@
       <ul class="navbar-nav">
         <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Inicio</a></li>
         <li><a href="{{ url_for('registro') }}" {% if request.endpoint == 'registro' %}class="active"{% endif %}>Nuevo Estudio</a></li>
+        <li><a href="{{ url_for('plantillas') }}" {% if request.endpoint == 'plantillas' %}class="active"{% endif %}>Plantillas</a></li>
         <li><a href="{{ url_for('normalidad_view') }}" {% if request.endpoint == 'normalidad_view' %}class="active"{% endif %}>Normalidad</a></li>
         <li><a href="{{ url_for('capacidad_view') }}" {% if request.endpoint == 'capacidad_view' %}class="active"{% endif %}>Capacidad</a></li>
         <li><a href="{{ url_for('pareto_view') }}" {% if request.endpoint == 'pareto_view' %}class="active"{% endif %}>Pareto</a></li>
