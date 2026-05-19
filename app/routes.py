@@ -79,7 +79,30 @@ def create_app() -> Flask:
 
     @app.route("/informe")
     def informe():
-        return render_template("informe.html")
+        docs_dir = os.path.join(os.path.dirname(app.template_folder), "docs")
+        manual_path = os.path.join(docs_dir, "Manual_Usuario.docx")
+        informe_path = os.path.join(docs_dir, "Informe_Tecnico.docx")
+        return render_template(
+            "informe.html",
+            manual_docx_disponible=os.path.isfile(manual_path),
+            informe_docx_disponible=os.path.isfile(informe_path),
+        )
+
+    @app.get("/descargas/<path:filename>")
+    def descargas(filename):
+        docs_dir = os.path.join(os.path.dirname(app.template_folder), "docs")
+        full = os.path.join(docs_dir, filename)
+        if not os.path.isfile(full):
+            abort(404)
+        if filename.endswith(".docx"):
+            mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        elif filename.endswith(".mmd"):
+            mime = "text/plain"
+        elif filename.endswith(".png"):
+            mime = "image/png"
+        else:
+            mime = "application/octet-stream"
+        return send_file(full, mimetype=mime, as_attachment=True, download_name=filename)
 
     @app.route("/plantillas")
     def plantillas():

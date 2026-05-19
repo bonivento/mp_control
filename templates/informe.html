@@ -2,7 +2,26 @@
 {% block title %}Informe técnico{% endblock %}
 
 {% block head %}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#E6F3FF',
+      primaryTextColor: '#003A6B',
+      primaryBorderColor: '#005CAB',
+      lineColor: '#003A6B',
+      secondaryColor: '#FFF8EC',
+      tertiaryColor: '#E6F9E3',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+    },
+  });
+</script>
 <style>
+  .mermaid-container { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-card); margin: 1.25rem 0; overflow-x: auto; }
+  .mermaid-container figcaption { text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-top: 0.6rem; font-style: italic; }
+  .mermaid { display: flex; justify-content: center; }
   .informe-toc { background: white; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: var(--shadow-card); border: 1px solid var(--border-soft); position: sticky; top: 4.5rem; }
   .informe-toc h3 { margin-top: 0; color: var(--unimag-blue-700); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
   .informe-toc ol { padding-left: 1.1rem; margin: 0; }
@@ -38,8 +57,14 @@
   <p class="meta">
     Universidad del Magdalena · Programa de Ingeniería · Asignatura: Control Estadístico de Procesos · 2026-1
   </p>
-  <div class="no-print mt-2">
+  <div class="no-print mt-2 flex gap-md" style="justify-content: center; flex-wrap: wrap;">
     <button onclick="window.print()" class="btn btn-secondary">🖨 Imprimir / Exportar a PDF</button>
+    {% if informe_docx_disponible %}
+    <a href="/descargas/Informe_Tecnico.docx" class="btn btn-accent">⤓ Descargar Informe Técnico (Word)</a>
+    {% endif %}
+    {% if manual_docx_disponible %}
+    <a href="/descargas/Manual_Usuario.docx" class="btn btn-secondary">⤓ Descargar Manual de Usuario (Word)</a>
+    {% endif %}
   </div>
 </div>
 
@@ -305,6 +330,42 @@
             la base de datos remota.</li>
       </ol>
 
+      <figure class="mermaid-container">
+        <div class="mermaid">
+flowchart TB
+    subgraph Cliente["Cliente · Navegador"]
+        UI["Interfaz HTML / CSS<br/>(paleta Unimagdalena)"]
+        JS["JavaScript<br/>Plotly.js 2.35"]
+    end
+    subgraph Vercel["Vercel Serverless"]
+        Flask["Flask 3 · API REST<br/>(app/routes.py)"]
+        Stats["Cálculos estadísticos<br/>(numpy · scipy)"]
+        Excel["Excel I/O<br/>(openpyxl)"]
+        Disp["Dispatcher de BD<br/>(app/database.py)"]
+    end
+    subgraph BaaS["Supabase · BaaS"]
+        Pool["Transaction Pooler<br/>puerto 6543 · IPv4"]
+        PG[("PostgreSQL<br/>estudios · muestras")]
+    end
+    UI -- HTTPS --> Flask
+    JS -- fetch JSON --> Flask
+    Flask --> Stats
+    Flask --> Excel
+    Flask --> Disp
+    Disp -- "psycopg<br/>prepare_threshold=None" --> Pool
+    Pool --> PG
+    style Cliente fill:#e6f3ff,stroke:#005CAB
+    style Vercel fill:#fff8ec,stroke:#FF9400
+    style BaaS fill:#e6f9e3,stroke:#00A50B
+        </div>
+        <figcaption>Figura 1. Diagrama de arquitectura (Mermaid).</figcaption>
+      </figure>
+
+      <p>El diagrama anterior se mantiene como código (Mermaid) en
+      <code>docs/diagrams/arquitectura.mmd</code>; el equivalente renderizado a PNG
+      embebido en los archivos Word se genera mediante un script en matplotlib
+      (<code>docs/diagrams/renderizar.py</code>).</p>
+
       <h3>3.3 Stack tecnológico</h3>
       <table class="data-table">
         <thead><tr><th>Capa</th><th>Tecnología</th><th>Justificación</th></tr></thead>
@@ -338,6 +399,33 @@
          principio de que la unidad atómica de análisis es el subgrupo, no la medición
          individual.</p>
 
+      <figure class="mermaid-container">
+        <div class="mermaid">
+erDiagram
+    estudios ||--o{ muestras : "tiene"
+    estudios {
+        bigint id PK
+        text nombre
+        text producto
+        text tipo
+        text caracteristica
+        text tipo_grafico
+        double_precision lsl
+        double_precision usl
+        integer tamano_subgrupo
+        timestamptz fecha_creacion
+    }
+    muestras {
+        bigint id PK
+        bigint estudio_id FK
+        integer subgrupo
+        jsonb valores
+        timestamptz fecha_muestra
+    }
+        </div>
+        <figcaption>Figura 2. Modelo entidad-relación.</figcaption>
+      </figure>
+
       <h3>3.5 Flujo de datos típico</h3>
       <ol>
         <li>El usuario ingresa datos manualmente o sube un archivo Excel con la trazabilidad
@@ -350,6 +438,32 @@
             descriptivas.</li>
         <li>El cliente renderiza los gráficos con Plotly.js y muestra los resúmenes.</li>
       </ol>
+
+      <figure class="mermaid-container">
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Analista
+    participant B as Navegador
+    participant F as Flask (Vercel)
+    participant E as excel_import
+    participant S as statistics/*
+    participant D as Supabase Postgres
+    Analista->>B: Selecciona archivo .xlsx
+    B->>F: POST /api/estudios/upload
+    F->>E: parse_excel(bytes)
+    E-->>F: metadata + muestras
+    F->>D: INSERT estudios + muestras (JSONB)
+    D-->>F: estudio_id
+    F-->>B: 201 { id, muestras, ok }
+    B->>F: POST /api/analisis/grafico
+    F->>S: x_bar_r_chart(subgrupos)
+    S-->>F: chart + reglas Nelson
+    F-->>B: JSON (puntos, límites, violaciones)
+    B-->>Analista: Plotly.newPlot()
+        </div>
+        <figcaption>Figura 3. Diagrama de secuencia — subir Excel y obtener análisis.</figcaption>
+      </figure>
 
       <h3>3.6 Validación de los cálculos</h3>
       <p>Para garantizar la corrección de los resultados se realizaron varias pruebas:</p>
