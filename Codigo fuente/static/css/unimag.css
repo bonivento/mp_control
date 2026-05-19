@@ -1,0 +1,341 @@
+/* Paleta Universidad del Magdalena - tomada del CDN oficial */
+:root {
+  --unimag-blue-50: #e6f3ff;
+  --unimag-blue-100: #b3daff;
+  --unimag-blue-300: #0183ef;
+  --unimag-blue-500: #005cab;
+  --unimag-blue-700: #004a87;
+  --unimag-blue-800: #003a6b;
+  --unimag-blue-900: #00294b;
+  --unimag-orange-300: #ff9400;
+  --unimag-orange-500: #d17900;
+  --unimag-orange-700: #a56000;
+  --unimag-green-300: #00f510;
+  --unimag-green-500: #00cb0d;
+  --unimag-green-700: #00a50b;
+  --unimag-purple: #3d01f1;
+  --bg-soft: #f6f9fc;
+  --border-soft: #e3e9ef;
+  --text-muted: #5b6b7a;
+  --shadow-card: 0 1px 3px rgba(0, 60, 110, 0.08), 0 4px 12px rgba(0, 60, 110, 0.05);
+  --danger: #d62728;
+  --warning: #ff9400;
+  --success: #00a50b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-soft);
+  color: var(--unimag-blue-900);
+  line-height: 1.5;
+}
+
+a { color: var(--unimag-blue-500); text-decoration: none; }
+a:hover { color: var(--unimag-blue-700); text-decoration: underline; }
+
+/* Navbar */
+.navbar {
+  background: linear-gradient(135deg, var(--unimag-blue-700) 0%, var(--unimag-blue-500) 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.navbar-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.navbar-brand img { height: 42px; width: auto; }
+.navbar-brand:hover { color: white; text-decoration: none; }
+.navbar-brand small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+.navbar-nav {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+.navbar-nav a {
+  color: rgba(255,255,255,0.92);
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.93rem;
+  transition: background 0.15s;
+}
+.navbar-nav a:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  text-decoration: none;
+}
+.navbar-nav a.active {
+  background: rgba(255,255,255,0.22);
+  color: white;
+}
+
+/* Layout */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--unimag-blue-800) 0%, var(--unimag-blue-500) 70%, var(--unimag-blue-300) 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  right: -50px;
+  top: -50px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, var(--unimag-orange-300) 0%, transparent 70%);
+  opacity: 0.18;
+  pointer-events: none;
+}
+.hero > * { position: relative; z-index: 1; }
+.hero h1 { margin: 0 0 0.5rem; font-size: 1.85rem; font-weight: 700; }
+.hero p { margin: 0; font-size: 1.05rem; opacity: 0.95; max-width: 720px; }
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-soft);
+}
+.card h2, .card h3 { color: var(--unimag-blue-700); margin-top: 0; }
+.card h2 { font-size: 1.2rem; }
+.card h3 { font-size: 1.05rem; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  border-left: 4px solid var(--unimag-blue-500);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+.metric-card .label {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.metric-card .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--unimag-blue-800);
+  margin-top: 0.2rem;
+}
+.metric-card.warn { border-left-color: var(--unimag-orange-500); }
+.metric-card.success { border-left-color: var(--unimag-green-700); }
+.metric-card.danger { border-left-color: var(--danger); }
+
+/* Forms */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem 1.25rem;
+}
+.form-group { display: flex; flex-direction: column; }
+.form-group label {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--unimag-blue-800);
+  margin-bottom: 0.35rem;
+}
+.form-control, select, textarea, input[type="text"], input[type="number"], input[type="date"] {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: white;
+  color: var(--unimag-blue-900);
+}
+.form-control:focus, select:focus, textarea:focus,
+input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus {
+  outline: none;
+  border-color: var(--unimag-blue-500);
+  box-shadow: 0 0 0 3px rgba(1, 131, 239, 0.18);
+}
+textarea { min-height: 80px; resize: vertical; }
+.form-hint { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.93rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--unimag-blue-500); color: white; }
+.btn-primary:hover { background: var(--unimag-blue-700); color: white; text-decoration: none; }
+.btn-secondary { background: var(--unimag-blue-50); color: var(--unimag-blue-700); }
+.btn-secondary:hover { background: var(--unimag-blue-100); color: var(--unimag-blue-800); text-decoration: none; }
+.btn-accent { background: var(--unimag-orange-500); color: white; }
+.btn-accent:hover { background: var(--unimag-orange-700); color: white; text-decoration: none; }
+.btn-success { background: var(--unimag-green-700); color: white; }
+.btn-success:hover { background: var(--unimag-green-500); color: white; text-decoration: none; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #a82121; color: white; text-decoration: none; }
+.btn-sm { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+/* Tablas */
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+table.data-table th {
+  background: var(--unimag-blue-500);
+  color: white;
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+table.data-table td {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.92rem;
+}
+table.data-table tr:nth-child(even) td { background: #f9fbfd; }
+table.data-table tr:hover td { background: #eaf3fb; }
+table.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.badge-blue { background: var(--unimag-blue-50); color: var(--unimag-blue-700); }
+.badge-orange { background: #fff1de; color: var(--unimag-orange-700); }
+.badge-green { background: #d8f5d2; color: var(--unimag-green-700); }
+.badge-red { background: #ffe2e2; color: var(--danger); }
+.badge-purple { background: #ede5ff; color: var(--unimag-purple); }
+
+/* Alerts */
+.alert {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid;
+  font-size: 0.95rem;
+}
+.alert-info { background: var(--unimag-blue-50); border-color: var(--unimag-blue-500); color: var(--unimag-blue-800); }
+.alert-warning { background: #fff8ec; border-color: var(--unimag-orange-500); color: var(--unimag-orange-700); }
+.alert-danger { background: #ffeaea; border-color: var(--danger); color: var(--danger); }
+.alert-success { background: #e6f9e3; border-color: var(--unimag-green-700); color: var(--unimag-green-700); }
+
+/* Plotly contenedores */
+.plotly-chart { width: 100%; min-height: 380px; margin-bottom: 0.5rem; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 2px solid var(--border-soft); flex-wrap: wrap; }
+.tab {
+  padding: 0.65rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab:hover { color: var(--unimag-blue-700); }
+.tab.active { color: var(--unimag-blue-700); border-bottom-color: var(--unimag-orange-500); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border-soft);
+  margin-top: 2rem;
+  background: white;
+}
+.footer img { height: 30px; vertical-align: middle; margin-right: 0.5rem; }
+
+/* Utilidades */
+.flex { display: flex; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.gap-sm { gap: 0.5rem; }
+.gap-md { gap: 1rem; }
+.mt-1 { margin-top: 0.5rem; } .mt-2 { margin-top: 1rem; } .mt-3 { margin-top: 1.5rem; }
+.mb-0 { margin-bottom: 0; } .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; }
+.text-muted { color: var(--text-muted); }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.no-print { }
+@media print { .no-print, .navbar, .footer { display: none; } }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero { padding: 1.75rem 1.25rem; }
+  .hero h1 { font-size: 1.45rem; }
+  .navbar-content { flex-direction: column; align-items: flex-start; }
+  .container { padding: 1rem; }
+}

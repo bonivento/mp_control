@@ -1,0 +1,43 @@
+%% Arquitectura del Sistema de Control Estadístico de Calidad
+%% Universidad del Magdalena - 2026-1
+%% Sintaxis Mermaid: https://mermaid.js.org/syntax/flowchart.html
+
+flowchart TB
+    subgraph Cliente["Cliente · Navegador"]
+        UI["Interfaz HTML / CSS<br>(paleta Unimagdalena)"]
+        JS["JavaScript<br>Plotly.js 2.35"]
+    end
+
+    subgraph Vercel["Vercel Serverless"]
+        Flask["Flask 3 · API REST<br>(app/routes.py)"]
+
+        subgraph Logica["Lógica de negocio"]
+            Stats["Cálculos estadísticos<br>(numpy, scipy)"]
+            Excel["Importación/Exportación<br>Excel (openpyxl)"]
+            Disp["Dispatcher de BD<br>(app/database.py)"]
+        end
+    end
+
+    subgraph BaaS["Supabase · BaaS"]
+        Pool["Transaction Pooler<br>puerto 6543, IPv4"]
+        PG[("PostgreSQL<br>tablas: estudios, muestras")]
+    end
+
+    CDN["CDN Unimagdalena<br>(escudo, paleta)"]
+    PlotlyCDN["Plotly.js CDN"]
+
+    UI -- "HTTPS" --> Flask
+    JS -- "fetch JSON" --> Flask
+    Flask --> Stats
+    Flask --> Excel
+    Flask --> Disp
+    Disp -- "psycopg<br>prepare_threshold=None" --> Pool
+    Pool --> PG
+
+    UI -. "imágenes" .-> CDN
+    JS -. "scripts" .-> PlotlyCDN
+
+    style Cliente fill:#e6f3ff,stroke:#005CAB,color:#003A6B
+    style Vercel fill:#fff8ec,stroke:#FF9400,color:#003A6B
+    style BaaS fill:#e6f9e3,stroke:#00A50B,color:#003A6B
+    style PG fill:#fff,stroke:#005CAB,color:#003A6B

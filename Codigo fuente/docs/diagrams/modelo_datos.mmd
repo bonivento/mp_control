@@ -1,0 +1,28 @@
+%% Modelo entidad-relación
+erDiagram
+    estudios ||--o{ muestras : "tiene"
+
+    estudios {
+        bigint id PK
+        text nombre
+        text producto
+        text tipo
+        text caracteristica
+        text unidad
+        text analista
+        text lote
+        text tipo_grafico
+        double_precision lsl
+        double_precision usl
+        integer tamano_subgrupo
+        text notas
+        timestamptz fecha_creacion
+    }
+
+    muestras {
+        bigint id PK
+        bigint estudio_id FK
+        integer subgrupo
+        jsonb valores
+        timestamptz fecha_muestra
+    }

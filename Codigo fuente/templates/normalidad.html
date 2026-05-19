@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Pruebas de normalidad{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Pruebas de normalidad</h1>
+  <p>Evalúa si tus datos siguen una distribución normal usando Shapiro-Wilk, Anderson-Darling y
+     D'Agostino-Pearson. Incluye histograma con curva normal teórica y gráfico Q-Q.</p>
+</section>
+
+<div class="card">
+  <h2>Ingreso de datos</h2>
+  <div class="form-group">
+    <label>Valores (separados por coma, espacio o salto de línea)</label>
+    <textarea id="input-datos" rows="6"
+              placeholder="48.2, 49.1, 50.3, 47.9, 51.0, ..."></textarea>
+    <span class="form-hint">Se requieren al menos 8 valores para todas las pruebas.</span>
+  </div>
+  <div class="flex gap-md">
+    <button type="button" class="btn btn-primary" id="btn-analizar">Analizar</button>
+    <button type="button" class="btn btn-secondary" id="btn-ejemplo">Cargar ejemplo</button>
+  </div>
+</div>
+
+<div id="resultados" style="display:none">
+  <div class="card">
+    <h2>Resultado de las pruebas</h2>
+    <div id="tabla-tests"></div>
+  </div>
+
+  <div class="card">
+    <h2>Estadística descriptiva</h2>
+    <div id="descriptive" class="card-grid"></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Histograma + curva normal</h3>
+      <div id="histograma" class="plotly-chart"></div>
+    </div>
+    <div class="card">
+      <h3>Gráfico Q-Q</h3>
+      <div id="qqplot" class="plotly-chart"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/normalidad.js') }}"></script>
+{% endblock %}

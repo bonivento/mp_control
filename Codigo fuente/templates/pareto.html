@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Diagrama de Pareto{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Diagrama de Pareto</h1>
+  <p>Identifica las pocas causas vitales (≈20%) responsables de la mayoría de los defectos (≈80%).
+     Ingresa las categorías y sus frecuencias de ocurrencia.</p>
+</section>
+
+<div class="card">
+  <h2>Datos</h2>
+  <div class="flex gap-md mb-2">
+    <button type="button" class="btn btn-secondary btn-sm" id="btn-add">+ Categoría</button>
+    <button type="button" class="btn btn-secondary btn-sm" id="btn-ejemplo">Cargar ejemplo</button>
+    <button type="button" class="btn btn-secondary btn-sm" id="btn-clear">Limpiar</button>
+  </div>
+  <table class="data-table" id="tabla-pareto">
+    <thead>
+      <tr>
+        <th>Categoría / Defecto</th>
+        <th>Frecuencia</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="cuerpo"></tbody>
+  </table>
+  <div class="mt-2">
+    <button type="button" class="btn btn-primary" id="btn-generar">Generar Pareto</button>
+  </div>
+</div>
+
+<div id="resultados" style="display:none">
+  <div class="card">
+    <h2>Diagrama de Pareto</h2>
+    <div id="grafico" class="plotly-chart" style="min-height: 460px;"></div>
+  </div>
+  <div class="card">
+    <h2>Análisis</h2>
+    <div id="vital-few" class="alert alert-info"></div>
+    <div id="tabla-resumen"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pareto.js') }}"></script>
+{% endblock %}
