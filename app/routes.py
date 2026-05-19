@@ -10,6 +10,7 @@ from . import database as db
 from .statistics import normality, control_charts, capability, pareto
 from .excel_export import construir_excel
 from .excel_import import parse_excel
+from . import tz
 
 
 def create_app() -> Flask:
@@ -24,6 +25,11 @@ def create_app() -> Flask:
     @app.context_processor
     def inject_backend():
         return {"db_backend": db.BACKEND}
+
+    # Filtros Jinja2 para mostrar fechas en hora Colombia (UTC-5)
+    app.jinja_env.filters["co_date"] = tz.colombia_date
+    app.jinja_env.filters["co_datetime"] = tz.colombia_datetime
+    app.jinja_env.filters["co_friendly"] = tz.colombia_friendly
 
     # init_db es lazy; cada función lo llama internamente para evitar
     # fallos al importar cuando DATABASE_URL aún no está lista.

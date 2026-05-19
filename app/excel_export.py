@@ -7,6 +7,8 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, NamedSty
 from openpyxl.chart import BarChart, LineChart, ScatterChart, Reference, Series
 from openpyxl.chart.label import DataLabelList
 
+from .tz import colombia_datetime, colombia_friendly
+
 
 HEADER_FILL = PatternFill(start_color="005CAB", end_color="005CAB", fill_type="solid")
 SUBHEADER_FILL = PatternFill(start_color="E6F3FF", end_color="E6F3FF", fill_type="solid")
@@ -65,7 +67,7 @@ def _hoja_trazabilidad(wb, estudio):
         ("LSL", estudio.get("lsl")),
         ("USL", estudio.get("usl")),
         ("Tamaño subgrupo", estudio.get("tamano_subgrupo")),
-        ("Fecha creación", estudio.get("fecha_creacion")),
+        ("Fecha creación (Colombia)", colombia_friendly(estudio.get("fecha_creacion"))),
         ("Notas", estudio.get("notas")),
     ]
     for i, (k, v) in enumerate(info, start=3):
@@ -99,7 +101,7 @@ def _hoja_datos(wb, estudio, muestras):
 
     for i, m in enumerate(muestras, start=2):
         ws.cell(row=i, column=1, value=m["subgrupo"]).border = BORDER
-        ws.cell(row=i, column=2, value=str(m.get("fecha_muestra", ""))[:19]).border = BORDER
+        ws.cell(row=i, column=2, value=colombia_datetime(m.get("fecha_muestra"))).border = BORDER
         vals = m["valores"]
         if tipo in ("xr", "xs"):
             for j, v in enumerate(vals):

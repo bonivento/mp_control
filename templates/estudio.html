@@ -24,7 +24,7 @@
   <div class="card-grid">
     <div><strong>Analista:</strong> {{ estudio.analista or '—' }}</div>
     <div><strong>Lote:</strong> {{ estudio.lote or '—' }}</div>
-    <div><strong>Fecha:</strong> {{ estudio.fecha_creacion[:19] | replace('T', ' ') }}</div>
+    <div><strong>Fecha:</strong> {{ estudio.fecha_creacion | co_friendly }}</div>
     <div><strong>Tipo:</strong> {{ estudio.tipo | capitalize }}</div>
     <div><strong>LSL:</strong> {{ estudio.lsl if estudio.lsl is not none else '—' }}</div>
     <div><strong>USL:</strong> {{ estudio.usl if estudio.usl is not none else '—' }}</div>
@@ -97,7 +97,7 @@
         {% for m in muestras %}
         <tr>
           <td>{{ m.subgrupo }}</td>
-          <td>{{ m.fecha_muestra[:19] | replace('T', ' ') }}</td>
+          <td>{{ m.fecha_muestra | co_datetime }}</td>
           <td>{{ m.valores | join(', ') }}</td>
         </tr>
         {% endfor %}

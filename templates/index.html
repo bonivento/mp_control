@@ -131,7 +131,7 @@
           <td><span class="badge badge-purple">{{ e.tipo_grafico | upper }}</span></td>
           <td>{{ e.analista or '—' }}</td>
           <td>{{ e.lote or '—' }}</td>
-          <td>{{ e.fecha_creacion[:10] }}</td>
+          <td>{{ e.fecha_creacion | co_date }}</td>
           <td>
             <div class="flex gap-sm">
               <a href="{{ url_for('estudio_detalle', estudio_id=e.id) }}"

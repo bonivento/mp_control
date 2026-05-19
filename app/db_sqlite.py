@@ -8,7 +8,7 @@ import os
 import sqlite3
 import json
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def _resolve_db_path() -> str:
@@ -93,7 +93,7 @@ def crear_estudio(payload: dict) -> int:
                 payload.get("usl"),
                 payload.get("tamano_subgrupo"),
                 payload.get("notas"),
-                datetime.utcnow().isoformat(),
+                datetime.now(timezone.utc).isoformat(),
             ),
         )
         return cur.lastrowid
@@ -130,7 +130,7 @@ def agregar_muestra(estudio_id: int, subgrupo: int, valores: list) -> int:
                 estudio_id,
                 subgrupo,
                 json.dumps(valores),
-                datetime.utcnow().isoformat(),
+                datetime.now(timezone.utc).isoformat(),
             ),
         )
         return cur.lastrowid
@@ -138,7 +138,7 @@ def agregar_muestra(estudio_id: int, subgrupo: int, valores: list) -> int:
 
 def agregar_muestras_bulk(estudio_id: int, muestras: list[dict]) -> int:
     """muestras: [{subgrupo: N, valores: [...]}, ...]"""
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     with get_conn() as conn:
         conn.executemany(
             """INSERT INTO muestras (estudio_id, subgrupo, valores, fecha_muestra)
