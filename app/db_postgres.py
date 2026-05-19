@@ -58,10 +58,22 @@ CREATE INDEX IF NOT EXISTS idx_estudios_producto ON estudios(producto);
 
 @contextmanager
 def get_conn():
-    """Abre una conexión por petición. Apto para el pooler de Supabase."""
+    """Abre una conexión por petición. Apto para el pooler de Supabase.
+
+    IMPORTANTE: prepare_threshold=None desactiva prepared statements. El
+    Transaction Pooler de Supabase (PgBouncer en modo transaction) reutiliza
+    conexiones físicas entre clientes, así que las prepared statements no
+    sobreviven entre transacciones y producen errores como
+    'prepared statement "_pg3_0" already exists'.
+    """
     if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL no está configurada.")
-    conn = psycopg.connect(DATABASE_URL, row_factory=dict_row, autocommit=False)
+    conn = psycopg.connect(
+        DATABASE_URL,
+        row_factory=dict_row,
+        autocommit=False,
+        prepare_threshold=None,
+    )
     try:
         yield conn
         conn.commit()
