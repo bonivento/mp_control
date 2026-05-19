@@ -29,6 +29,7 @@
         <li><a href="{{ url_for('capacidad_view') }}" {% if request.endpoint == 'capacidad_view' %}class="active"{% endif %}>Capacidad</a></li>
         <li><a href="{{ url_for('pareto_view') }}" {% if request.endpoint == 'pareto_view' %}class="active"{% endif %}>Pareto</a></li>
         <li><a href="{{ url_for('manual') }}" {% if request.endpoint == 'manual' %}class="active"{% endif %}>Manual</a></li>
+        <li><a href="{{ url_for('informe') }}" {% if request.endpoint == 'informe' %}class="active"{% endif %}>Informe</a></li>
       </ul>
     </div>
   </nav>

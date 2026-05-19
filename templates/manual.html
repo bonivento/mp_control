@@ -1,96 +1,541 @@
 {% extends "base.html" %}
 {% block title %}Manual de usuario{% endblock %}
 
+{% block head %}
+<style>
+  .manual-toc { background: white; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: var(--shadow-card); border: 1px solid var(--border-soft); position: sticky; top: 4.5rem; }
+  .manual-toc h3 { margin-top: 0; color: var(--unimag-blue-700); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .manual-toc ol { padding-left: 1.1rem; margin: 0; }
+  .manual-toc li { margin: 0.3rem 0; font-size: 0.92rem; }
+  .manual-toc a { color: var(--unimag-blue-800); }
+  .manual-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; }
+  @media (max-width: 900px) { .manual-layout { grid-template-columns: 1fr; } .manual-toc { position: static; } }
+  .manual h2 { padding-bottom: 0.5rem; border-bottom: 2px solid var(--unimag-blue-50); margin-top: 2rem; }
+  .manual h3 { color: var(--unimag-blue-700); margin-top: 1.5rem; }
+  .manual code, .manual kbd { background: #eef4fa; padding: 0.12rem 0.4rem; border-radius: 4px; font-size: 0.88em; }
+  .step { background: #f6f9fc; border-left: 3px solid var(--unimag-blue-300); padding: 0.6rem 0.9rem; margin: 0.5rem 0; border-radius: 4px; }
+  .formula { background: #fff; border: 1px dashed var(--border-soft); padding: 0.6rem 0.9rem; border-radius: 6px; font-family: "SF Mono", Menlo, Consolas, monospace; margin: 0.5rem 0; }
+  .pill { display: inline-block; background: var(--unimag-orange-300); color: white; border-radius: 999px; padding: 0.05rem 0.55rem; font-size: 0.78rem; margin-left: 0.3rem; }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="hero">
   <h1>Manual de usuario</h1>
-  <p>Guía rápida para usar el sistema de Control Estadístico de Calidad aplicado a frutas,
-     hortalizas y plantas medicinales.</p>
+  <p>Guía completa para usar el Sistema de Control Estadístico de Calidad aplicado a frutas,
+     hortalizas y plantas medicinales — Universidad del Magdalena.</p>
 </section>
 
-<div class="card">
-  <h2>1. Tipos de control</h2>
-  <h3>Variables continuas</h3>
-  <p>Mediciones numéricas como peso (g), diámetro (cm), pH, °Brix, firmeza, humedad (%), etc.</p>
-  <ul>
-    <li><strong>X̄-R</strong>: subgrupos pequeños (n entre 2 y 9). Usa el rango como medida de variabilidad.</li>
-    <li><strong>X̄-S</strong>: subgrupos grandes (n ≥ 10). Usa la desviación estándar (más eficiente).</li>
-  </ul>
+<div class="manual-layout">
+  <aside class="manual-toc no-print">
+    <h3>Contenido</h3>
+    <ol>
+      <li><a href="#intro">Introducción</a></li>
+      <li><a href="#requisitos">Requisitos y acceso</a></li>
+      <li><a href="#navegacion">Navegación general</a></li>
+      <li><a href="#flujo">Flujo de trabajo recomendado</a></li>
+      <li><a href="#trazabilidad">Registro de trazabilidad</a></li>
+      <li><a href="#variables">Control por variables</a></li>
+      <li><a href="#atributos">Control por atributos</a></li>
+      <li><a href="#normalidad">Pruebas de normalidad</a></li>
+      <li><a href="#capacidad">Capacidad del proceso</a></li>
+      <li><a href="#pareto">Diagrama de Pareto</a></li>
+      <li><a href="#nelson">Reglas de Nelson</a></li>
+      <li><a href="#excel">Importar / Exportar Excel</a></li>
+      <li><a href="#dashboard">Dashboard y filtros</a></li>
+      <li><a href="#interpretacion">Cómo interpretar los resultados</a></li>
+      <li><a href="#errores">Errores comunes</a></li>
+      <li><a href="#glosario">Glosario</a></li>
+    </ol>
+  </aside>
 
-  <h3>Atributos (conteos)</h3>
-  <p>Características clasificadas como conformes / no conformes (manchas, plagas, defectos visuales).</p>
-  <ul>
-    <li><strong>p</strong>: proporción de unidades defectuosas (tamaño de muestra variable).</li>
-    <li><strong>np</strong>: número de unidades defectuosas (tamaño de muestra constante).</li>
-    <li><strong>c</strong>: número de defectos por unidad (área de oportunidad constante).</li>
-    <li><strong>u</strong>: defectos por unidad (área variable).</li>
-  </ul>
-</div>
-
-<div class="card">
-  <h2>2. Flujo recomendado</h2>
-  <ol>
-    <li>Crear nuevo estudio en <a href="{{ url_for('registro') }}">Nuevo Estudio</a>, completando trazabilidad
-        (producto, característica, analista, lote, unidad).</li>
-    <li>Seleccionar tipo de gráfico y, si aplica, definir límites de especificación (LSL/USL).</li>
-    <li>Ingresar al menos <strong>25 subgrupos</strong> (requisito del trabajo final).</li>
-    <li>Guardar — el sistema calculará automáticamente:
+  <div class="manual">
+    <!-- 1. INTRODUCCIÓN -->
+    <section id="intro" class="card">
+      <h2>1. Introducción</h2>
+      <p>Este sistema implementa las principales herramientas de
+         <strong>Control Estadístico de Procesos (CEP / CEC)</strong> aplicadas al
+         monitoreo de la calidad de frutas, hortalizas y plantas medicinales.</p>
+      <p>Permite a un analista o equipo de calidad:</p>
       <ul>
-        <li>Gráficos de control con LSC / LC / LIC</li>
-        <li>Detección de puntos fuera de control y reglas de Nelson</li>
-        <li>Pruebas de normalidad (variables)</li>
-        <li>Índices de capacidad Cp/Cpk/Pp/Ppk (variables con LSL/USL)</li>
+        <li>Registrar muestras de un proceso con su trazabilidad completa.</li>
+        <li>Aplicar pruebas estadísticas para verificar normalidad de los datos.</li>
+        <li>Construir gráficos de control (X̄-R, X̄-S, p, np, c, u) que detectan
+            automáticamente cuándo el proceso se sale de control.</li>
+        <li>Calcular índices de capacidad del proceso (Cp, Cpk, Pp, Ppk).</li>
+        <li>Identificar las causas principales de no conformidad con un diagrama de Pareto.</li>
+        <li>Importar datos desde Excel y exportar reportes completos.</li>
       </ul>
-    </li>
-    <li>Exportar el reporte completo a Excel.</li>
-  </ol>
-</div>
+      <p>El sistema funciona como aplicación web; basta con un navegador moderno.
+         Los datos se almacenan en una base de datos PostgreSQL (Supabase) y persisten
+         entre sesiones.</p>
+    </section>
 
-<div class="card">
-  <h2>3. Interpretación de Cp / Cpk</h2>
-  <table class="data-table">
-    <thead>
-      <tr><th>Valor de Cpk</th><th>Interpretación</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>≥ 1.67</td><td>Proceso de clase mundial</td></tr>
-      <tr><td>1.33 – 1.67</td><td>Proceso capaz</td></tr>
-      <tr><td>1.00 – 1.33</td><td>Adecuado, requiere control estricto</td></tr>
-      <tr><td>0.67 – 1.00</td><td>Parcialmente capaz, requiere mejoras</td></tr>
-      <tr><td>&lt; 0.67</td><td>Incapaz, acción inmediata</td></tr>
-    </tbody>
-  </table>
-</div>
+    <!-- 2. REQUISITOS -->
+    <section id="requisitos" class="card">
+      <h2>2. Requisitos y acceso</h2>
+      <h3>Para usar la aplicación</h3>
+      <ul>
+        <li>Navegador moderno: Chrome 100+, Firefox 100+, Safari 15+, Edge 100+.</li>
+        <li>Conexión a internet (la app está desplegada en Vercel).</li>
+        <li>Para subir Excel: archivos con extensión <code>.xlsx</code>, máximo 5 MB.</li>
+      </ul>
+      <h3>Para uso local / desarrollo</h3>
+      <ul>
+        <li>Python 3.9 o superior.</li>
+        <li>Instalar dependencias: <code>pip install -r requirements.txt</code>.</li>
+        <li>Arrancar: <code>python api/index.py --port 5050 --debug</code>.</li>
+        <li>Opcional: archivo <code>.env</code> con <code>DATABASE_URL</code> para conectar a Supabase.</li>
+      </ul>
+      <h3>Acceso a la versión desplegada</h3>
+      <p>Abre la URL pública del proyecto en Vercel (te la entrega el equipo).
+         Comparte el enlace con cualquier persona que necesite registrar o consultar datos.</p>
+    </section>
 
-<div class="card">
-  <h2>4. Reglas de Nelson para detección de patrones</h2>
-  <ul>
-    <li><strong>Regla 1</strong>: 1 punto fuera de ±3σ</li>
-    <li><strong>Regla 2</strong>: 9 puntos consecutivos del mismo lado de la línea central</li>
-    <li><strong>Regla 3</strong>: 6 puntos consecutivos con tendencia (creciente o decreciente)</li>
-    <li><strong>Regla 4</strong>: 14 puntos alternando arriba/abajo</li>
-    <li><strong>Regla 5</strong>: 2 de 3 puntos consecutivos más allá de ±2σ del mismo lado</li>
-    <li><strong>Regla 6</strong>: 4 de 5 puntos consecutivos más allá de ±1σ del mismo lado</li>
-  </ul>
-</div>
+    <!-- 3. NAVEGACIÓN -->
+    <section id="navegacion" class="card">
+      <h2>3. Navegación general</h2>
+      <p>La barra superior ofrece accesos directos a todas las secciones:</p>
+      <table class="data-table">
+        <thead><tr><th>Sección</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Inicio</strong></td><td>Dashboard con resumen y lista de estudios anteriores</td></tr>
+          <tr><td><strong>Nuevo Estudio</strong></td><td>Formulario para registrar un estudio paso a paso</td></tr>
+          <tr><td><strong>Plantillas</strong></td><td>Descarga de archivos de prueba y subida de Excel</td></tr>
+          <tr><td><strong>Normalidad</strong></td><td>Pruebas de normalidad sobre un conjunto de datos rápido</td></tr>
+          <tr><td><strong>Capacidad</strong></td><td>Cálculo independiente de Cp/Cpk/Pp/Ppk</td></tr>
+          <tr><td><strong>Pareto</strong></td><td>Diagrama de Pareto independiente</td></tr>
+          <tr><td><strong>Informe</strong></td><td>Informe técnico del proyecto</td></tr>
+          <tr><td><strong>Manual</strong></td><td>Esta página</td></tr>
+        </tbody>
+      </table>
+    </section>
 
-<div class="card">
-  <h2>5. Formato para pegar desde Excel</h2>
-  <p>En las pantallas de registro puedes pegar datos copiados directamente desde Excel:</p>
-  <ul>
-    <li><strong>X̄-R / X̄-S</strong>: cada fila = un subgrupo, cada columna = una medición.</li>
-    <li><strong>p, u</strong>: dos columnas — defectuosos / defectos y tamaño de muestra.</li>
-    <li><strong>np, c</strong>: una sola columna con los conteos.</li>
-  </ul>
-</div>
+    <!-- 4. FLUJO -->
+    <section id="flujo" class="card">
+      <h2>4. Flujo de trabajo recomendado</h2>
+      <div class="step"><strong>Paso 1.</strong> Define qué quieres controlar: una variable continua
+        (peso, pH, °Brix) o un atributo (defectos, manchas, frutos podridos).</div>
+      <div class="step"><strong>Paso 2.</strong> Determina el tamaño de subgrupo (n). Para variables
+        es típicamente 4 ó 5; para atributos depende de la frecuencia esperada de defectos.</div>
+      <div class="step"><strong>Paso 3.</strong> Toma al menos <strong>25 subgrupos</strong> de
+        manera secuencial. Es el mínimo recomendado por la literatura (Montgomery).</div>
+      <div class="step"><strong>Paso 4.</strong> Registra los datos en la app — manualmente
+        o subiendo un Excel preformateado.</div>
+      <div class="step"><strong>Paso 5.</strong> Analiza el gráfico de control y la lista de reglas
+        de Nelson. Si hay puntos fuera o patrones, investiga las causas asignables.</div>
+      <div class="step"><strong>Paso 6.</strong> Si el proceso está estable, calcula la
+        capacidad (Cp/Cpk). Esto te dice si cumple las especificaciones técnicas.</div>
+      <div class="step"><strong>Paso 7.</strong> Exporta el reporte a Excel para archivar o compartir.</div>
+    </section>
 
-<div class="card">
-  <h2>6. Limitaciones del entorno serverless</h2>
-  <div class="alert alert-warning">
-    <strong>Vercel</strong>: el sistema usa SQLite, y en Vercel el filesystem es efímero.
-    Los datos pueden perderse entre invocaciones. Para uso productivo se recomienda configurar una
-    base de datos PostgreSQL (Neon, Supabase o Vercel Postgres) mediante la variable
-    <code>DATABASE_URL</code>.
+    <!-- 5. TRAZABILIDAD -->
+    <section id="trazabilidad" class="card">
+      <h2>5. Registro de trazabilidad</h2>
+      <p>Cada estudio debe llevar la información que permita identificarlo y reproducirlo.
+         Los campos disponibles son:</p>
+      <table class="data-table">
+        <thead><tr><th>Campo</th><th>¿Obligatorio?</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td>Nombre del estudio</td><td>Sí</td><td>"Peso de mango Tommy lote 2026-001"</td></tr>
+          <tr><td>Producto</td><td>Sí</td><td>Mango, Sábila, Cilantro, Aguacate…</td></tr>
+          <tr><td>Característica</td><td>Sí</td><td>Peso, pH, °Brix, Manchas, Daños…</td></tr>
+          <tr><td>Unidad</td><td>No</td><td>g, cm, %, °Bx, °C</td></tr>
+          <tr><td>Analista</td><td>No</td><td>Nombre de quien toma las mediciones</td></tr>
+          <tr><td>Lote</td><td>No</td><td>Identificador único del lote o cosecha</td></tr>
+          <tr><td>Tipo (variable/atributo)</td><td>Sí</td><td>Variable continua o atributo discreto</td></tr>
+          <tr><td>Tipo de gráfico</td><td>Sí</td><td>xr, xs, p, np, c, u</td></tr>
+          <tr><td>LSL / USL</td><td>Solo capacidad</td><td>Límites de especificación</td></tr>
+          <tr><td>Tamaño subgrupo</td><td>X̄-R/X̄-S</td><td>Entre 2 y 25</td></tr>
+          <tr><td>Notas</td><td>No</td><td>Observaciones del proceso, condiciones, etc.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 6. VARIABLES -->
+    <section id="variables" class="card">
+      <h2>6. Control por variables (datos continuos)</h2>
+      <p>Para mediciones numéricas (peso, dimensiones, contenido químico, etc.).</p>
+
+      <h3>Gráfico X̄-R <span class="pill">n entre 2 y 9</span></h3>
+      <p>Monitorea la <strong>media</strong> y el <strong>rango</strong> de cada subgrupo.
+         Es el gráfico más utilizado por su simplicidad y robustez con muestras pequeñas.</p>
+      <div class="formula">
+        UCL<sub>X̄</sub> = X̄̄ + A<sub>2</sub> · R̄ &nbsp;|&nbsp; LCL<sub>X̄</sub> = X̄̄ − A<sub>2</sub> · R̄ <br>
+        UCL<sub>R</sub> = D<sub>4</sub> · R̄ &nbsp;|&nbsp; LCL<sub>R</sub> = D<sub>3</sub> · R̄ <br>
+        σ̂ = R̄ / d<sub>2</sub>
+      </div>
+
+      <h3>Gráfico X̄-S <span class="pill">n ≥ 10</span></h3>
+      <p>Similar al X̄-R pero usa la <strong>desviación estándar</strong> S en lugar del rango.
+         Más eficiente estadísticamente para subgrupos grandes.</p>
+      <div class="formula">
+        UCL<sub>X̄</sub> = X̄̄ + A<sub>3</sub> · S̄ &nbsp;|&nbsp; LCL<sub>X̄</sub> = X̄̄ − A<sub>3</sub> · S̄ <br>
+        UCL<sub>S</sub> = B<sub>4</sub> · S̄ &nbsp;|&nbsp; LCL<sub>S</sub> = B<sub>3</sub> · S̄ <br>
+        σ̂ = S̄ / c<sub>4</sub>
+      </div>
+
+      <p>Las constantes A<sub>2</sub>, A<sub>3</sub>, D<sub>3</sub>, D<sub>4</sub>, B<sub>3</sub>,
+         B<sub>4</sub>, d<sub>2</sub>, c<sub>4</sub> dependen del tamaño de subgrupo y están
+         implementadas en el código siguiendo Montgomery (Statistical Quality Control, 7th ed.)
+         para n entre 2 y 25.</p>
+    </section>
+
+    <!-- 7. ATRIBUTOS -->
+    <section id="atributos" class="card">
+      <h2>7. Control por atributos (datos discretos)</h2>
+      <p>Para conteos: "frutos defectuosos", "número de manchas", "presencia de plagas".</p>
+
+      <h3>Gráfico p <span class="pill">n variable</span></h3>
+      <p>Mide la proporción de unidades defectuosas. Tolera tamaños de muestra que cambian
+         entre subgrupos.</p>
+      <div class="formula">
+        p̂<sub>i</sub> = d<sub>i</sub>/n<sub>i</sub> &nbsp;|&nbsp; p̄ = Σd / Σn <br>
+        UCL = p̄ + 3·√[ p̄(1−p̄)/n<sub>i</sub> ] &nbsp;|&nbsp; LCL = max(0, …)
+      </div>
+
+      <h3>Gráfico np <span class="pill">n constante</span></h3>
+      <p>Equivalente al gráfico p pero grafica directamente el <em>número</em> de defectuosos.
+         Requiere que el tamaño de muestra sea siempre el mismo.</p>
+      <div class="formula">
+        UCL = np̄ + 3·√[ np̄(1−p̄) ] &nbsp;|&nbsp; LCL = max(0, np̄ − 3·√[ np̄(1−p̄) ])
+      </div>
+
+      <h3>Gráfico c <span class="pill">área constante</span></h3>
+      <p>Cuenta defectos por unidad (no unidades defectuosas — un fruto puede tener varios
+         defectos). Asume distribución Poisson.</p>
+      <div class="formula">
+        UCL = c̄ + 3·√c̄ &nbsp;|&nbsp; LCL = max(0, c̄ − 3·√c̄)
+      </div>
+
+      <h3>Gráfico u <span class="pill">área variable</span></h3>
+      <p>Similar al c pero permite que el "área de oportunidad" (kg de fruta, m² de campo,
+         tamaño de lote) varíe.</p>
+      <div class="formula">
+        u<sub>i</sub> = c<sub>i</sub>/n<sub>i</sub> &nbsp;|&nbsp; ū = Σc / Σn <br>
+        UCL = ū + 3·√(ū/n<sub>i</sub>) &nbsp;|&nbsp; LCL = max(0, ū − 3·√(ū/n<sub>i</sub>))
+      </div>
+    </section>
+
+    <!-- 8. NORMALIDAD -->
+    <section id="normalidad" class="card">
+      <h2>8. Pruebas de normalidad</h2>
+      <p>Los gráficos X̄-R y X̄-S y los índices de capacidad asumen que los datos
+         siguen una distribución normal. Antes de interpretarlos, conviene verificar este supuesto.</p>
+
+      <h3>Tres pruebas disponibles</h3>
+      <table class="data-table">
+        <thead><tr><th>Prueba</th><th>Cuándo usar</th><th>n mínimo</th><th>Sensibilidad</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Shapiro-Wilk</strong></td><td>Muestras pequeñas-medianas</td><td>3</td><td>Muy alta, recomendada por defecto</td></tr>
+          <tr><td><strong>Anderson-Darling</strong></td><td>Cualquier tamaño, énfasis en colas</td><td>8</td><td>Alta, especialmente en extremos</td></tr>
+          <tr><td><strong>D'Agostino-Pearson</strong></td><td>Muestras grandes</td><td>20</td><td>Basada en asimetría y curtosis</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Interpretación del p-valor</h3>
+      <ul>
+        <li>Si <strong>p &gt; 0.05</strong>: no se rechaza la hipótesis nula → los datos son
+            compatibles con una distribución normal.</li>
+        <li>Si <strong>p &lt; 0.05</strong>: se rechaza la normalidad → los datos no son
+            normales. Considera transformar (log, raíz cuadrada, Box-Cox) o usar
+            métodos no paramétricos.</li>
+      </ul>
+
+      <h3>Apoyos visuales</h3>
+      <ul>
+        <li><strong>Histograma con curva normal</strong>: si las barras se ajustan a la curva,
+            los datos son aproximadamente normales.</li>
+        <li><strong>Gráfico Q-Q</strong>: los puntos deben quedar cerca de la línea diagonal de
+            referencia. Curvaturas indican asimetría o colas pesadas.</li>
+      </ul>
+    </section>
+
+    <!-- 9. CAPACIDAD -->
+    <section id="capacidad" class="card">
+      <h2>9. Capacidad del proceso</h2>
+      <p>Una vez que el proceso está estable, el siguiente paso es saber si cumple con las
+         especificaciones del producto. Aquí entran los <strong>índices de capacidad</strong>.</p>
+
+      <div class="formula">
+        Cp = (USL − LSL) / (6·σ<sub>within</sub>) <br>
+        Cpk = min[ (USL − μ)/(3σ), (μ − LSL)/(3σ) ] usando σ<sub>within</sub> <br>
+        Pp = (USL − LSL) / (6·σ<sub>overall</sub>) <br>
+        Ppk = idem Cpk pero con σ<sub>overall</sub>
+      </div>
+
+      <h3>Diferencia entre σ<sub>within</sub> y σ<sub>overall</sub></h3>
+      <ul>
+        <li><strong>σ<sub>within</sub></strong>: variabilidad dentro de subgrupos (corto plazo).
+            Estimada como R̄/d<sub>2</sub> o S̄/c<sub>4</sub>.</li>
+        <li><strong>σ<sub>overall</sub></strong>: variabilidad total considerando todos los
+            datos (corto + largo plazo). Estimada como desviación estándar muestral.</li>
+      </ul>
+
+      <h3>Tabla de interpretación de Cpk</h3>
+      <table class="data-table">
+        <thead><tr><th>Valor de Cpk</th><th>Estado</th><th>Acción</th></tr></thead>
+        <tbody>
+          <tr><td>≥ 1.67</td><td><span class="badge badge-green">Clase mundial</span></td><td>Mantener, considerar reducir control</td></tr>
+          <tr><td>1.33 – 1.67</td><td><span class="badge badge-green">Capaz</span></td><td>Monitoreo de rutina</td></tr>
+          <tr><td>1.00 – 1.33</td><td><span class="badge badge-orange">Adecuado</span></td><td>Control estricto, mejorar</td></tr>
+          <tr><td>0.67 – 1.00</td><td><span class="badge badge-orange">Parcialmente capaz</span></td><td>Plan de mejora urgente</td></tr>
+          <tr><td>&lt; 0.67</td><td><span class="badge badge-red">Incapaz</span></td><td>Detener, rediseñar proceso</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Cp vs Cpk</h3>
+      <ul>
+        <li><strong>Cp</strong> mide el "potencial" del proceso (qué tan ancha es la dispersión
+            comparada con las especificaciones), sin importar dónde está centrado.</li>
+        <li><strong>Cpk</strong> mide el desempeño real teniendo en cuenta también el centrado.
+            Cuando Cp &gt; Cpk, el proceso no está centrado entre los límites.</li>
+      </ul>
+    </section>
+
+    <!-- 10. PARETO -->
+    <section id="pareto" class="card">
+      <h2>10. Diagrama de Pareto</h2>
+      <p>Basado en el principio 80/20 de Vilfredo Pareto: aproximadamente el 80% de los
+         problemas provienen del 20% de las causas.</p>
+
+      <h3>Cómo usarlo</h3>
+      <ol>
+        <li>Ve a la sección <strong>Pareto</strong>.</li>
+        <li>Agrega las categorías de defecto y su frecuencia observada en un periodo.</li>
+        <li>Click en <strong>Generar Pareto</strong>.</li>
+      </ol>
+
+      <h3>Cómo leerlo</h3>
+      <ul>
+        <li>Las barras (azul) están ordenadas de mayor a menor frecuencia.</li>
+        <li>La línea naranja muestra el porcentaje acumulado.</li>
+        <li>La línea horizontal roja punteada marca el 80%.</li>
+        <li>Las categorías que están a la izquierda del cruce con esa línea son las
+            <strong>"pocas vitales"</strong> — concentra tus esfuerzos de mejora ahí.</li>
+      </ul>
+    </section>
+
+    <!-- 11. NELSON -->
+    <section id="nelson" class="card">
+      <h2>11. Reglas de Nelson</h2>
+      <p>Lloyd S. Nelson (1984) propuso reglas adicionales para detectar patrones no aleatorios
+         en los gráficos de control, más allá del simple "punto fuera de ±3σ". El sistema
+         implementa 6 de las 8 reglas clásicas:</p>
+
+      <table class="data-table">
+        <thead><tr><th>Regla</th><th>Descripción</th><th>Indica</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1 punto más allá de ±3σ</td><td>Causa asignable inmediata</td></tr>
+          <tr><td>2</td><td>9 puntos consecutivos del mismo lado de la línea central</td><td>Shift de la media</td></tr>
+          <tr><td>3</td><td>6 puntos consecutivos con tendencia creciente o decreciente</td><td>Deriva (drift) — herramienta gastándose, fatiga, etc.</td></tr>
+          <tr><td>4</td><td>14 puntos consecutivos alternando arriba/abajo</td><td>Mezcla de dos procesos / sistemático</td></tr>
+          <tr><td>5</td><td>2 de 3 puntos consecutivos más allá de ±2σ del mismo lado</td><td>Shift incipiente</td></tr>
+          <tr><td>6</td><td>4 de 5 puntos consecutivos más allá de ±1σ del mismo lado</td><td>Shift pequeño persistente</td></tr>
+        </tbody>
+      </table>
+
+      <p>Las violaciones se muestran en la pestaña <strong>Reglas de Nelson</strong> dentro
+         de cada estudio.</p>
+    </section>
+
+    <!-- 12. EXCEL -->
+    <section id="excel" class="card">
+      <h2>12. Importar / Exportar Excel</h2>
+
+      <h3>Importar (subir)</h3>
+      <ol>
+        <li>Ve a <strong>Plantillas</strong>.</li>
+        <li>Descarga uno de los archivos de prueba o prepara el tuyo (formato más abajo).</li>
+        <li>Click en <strong>Seleccionar archivo</strong> → <strong>Subir y analizar</strong>.</li>
+        <li>El estudio se crea automáticamente y se abre la página de análisis.</li>
+      </ol>
+
+      <h3>Formato del Excel</h3>
+      <p>El archivo debe tener dos hojas:</p>
+
+      <h4>Hoja "Trazabilidad" (clave / valor)</h4>
+      <table class="data-table">
+        <thead><tr><th>A (Campo)</th><th>B (Valor)</th></tr></thead>
+        <tbody>
+          <tr><td>Nombre</td><td>Peso de mango Tommy</td></tr>
+          <tr><td>Producto</td><td>Mango Tommy</td></tr>
+          <tr><td>Tipo</td><td>variable</td></tr>
+          <tr><td>Caracteristica</td><td>Peso</td></tr>
+          <tr><td>Unidad</td><td>g</td></tr>
+          <tr><td>Tipo de grafico</td><td>xr</td></tr>
+          <tr><td>LSL</td><td>235</td></tr>
+          <tr><td>USL</td><td>265</td></tr>
+          <tr><td>Tamano subgrupo</td><td>5</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Hoja "Datos" (depende del tipo)</h4>
+      <ul>
+        <li><strong>X̄-R / X̄-S</strong>: columnas <code>Subgrupo | Med 1 | Med 2 | … | Med N</code></li>
+        <li><strong>p / u</strong>: <code>Subgrupo | Defectivos | Tamano muestra</code></li>
+        <li><strong>np</strong>: <code>Subgrupo | Defectivos | Tamano muestra</code> (constante)</li>
+        <li><strong>c</strong>: <code>Subgrupo | Defectos</code></li>
+      </ul>
+
+      <h3>Exportar</h3>
+      <p>Desde la página de cualquier estudio, click en <strong>Exportar a Excel</strong>.
+         Descarga un archivo con tres hojas:</p>
+      <ul>
+        <li><strong>Trazabilidad</strong>: toda la metadata.</li>
+        <li><strong>Datos</strong>: las muestras registradas.</li>
+        <li><strong>Resultados</strong>: salida completa del análisis (JSON estructurado).</li>
+      </ul>
+    </section>
+
+    <!-- 13. DASHBOARD -->
+    <section id="dashboard" class="card">
+      <h2>13. Dashboard y filtros</h2>
+      <p>En la página de <strong>Inicio</strong> aparece:</p>
+      <ul>
+        <li>Tarjetas de resumen: total de estudios, separados por tipo y estado del almacenamiento.</li>
+        <li>Tabla de <strong>Estudios anteriores</strong> con búsqueda y filtros:
+          <ul>
+            <li><strong>Buscar</strong>: por nombre, producto, característica, analista o lote.</li>
+            <li><strong>Tipo</strong>: filtra variables o atributos.</li>
+            <li><strong>Gráfico</strong>: filtra por tipo de gráfico (xr, xs, p…).</li>
+            <li><strong>Orden</strong>: fecha, nombre, producto.</li>
+          </ul>
+        </li>
+        <li>Botones por estudio:
+          <ul>
+            <li><strong>Abrir</strong>: ir a la página de análisis.</li>
+            <li><strong>⤓</strong>: descargar el reporte Excel directamente.</li>
+            <li><strong>×</strong>: eliminar el estudio (pide confirmación).</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 14. INTERPRETACIÓN -->
+    <section id="interpretacion" class="card">
+      <h2>14. Cómo interpretar los resultados</h2>
+
+      <h3>Caso: proceso en control</h3>
+      <ul>
+        <li>Ningún punto fuera de los límites.</li>
+        <li>No hay violaciones a las reglas de Nelson (o son muy pocas).</li>
+        <li>Los puntos oscilan aleatoriamente alrededor de la línea central.</li>
+        <li>Si hay LSL/USL definidos: calcula Cpk.
+          <ul>
+            <li>Cpk ≥ 1.33 → el proceso cumple las especificaciones.</li>
+            <li>Cpk &lt; 1.33 → ajusta centrado o reduce variabilidad.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Caso: proceso fuera de control</h3>
+      <ol>
+        <li><strong>No calcules capacidad todavía</strong>. Cp/Cpk solo tienen sentido cuando
+            el proceso es estable.</li>
+        <li>Identifica el primer punto que viola una regla.</li>
+        <li>Investiga qué cambió en ese momento del proceso (cambio de operador, materia prima,
+            equipo, ambiente).</li>
+        <li>Aplica acciones correctivas, vuelve a muestrear y recalcula.</li>
+      </ol>
+
+      <h3>Caso: datos no normales</h3>
+      <ul>
+        <li>X̄-R y X̄-S son robustos a desviaciones leves; siguen siendo útiles.</li>
+        <li>Para no normalidad fuerte: transformar (log, raíz, Box-Cox) o cambiar a gráficos
+            de cuantiles / no paramétricos.</li>
+        <li>La capacidad calculada bajo asunción de normalidad será imprecisa — repórtala con
+            esa salvedad.</li>
+      </ul>
+    </section>
+
+    <!-- 15. ERRORES -->
+    <section id="errores" class="card">
+      <h2>15. Errores comunes y soluciones</h2>
+      <table class="data-table">
+        <thead><tr><th>Síntoma</th><th>Causa</th><th>Solución</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>"No se pudo conectar a la base de datos. Cannot assign requested address"</td>
+            <td>Estás usando la conexión directa (IPv6) en Vercel</td>
+            <td>Usar Transaction Pooler (puerto 6543) — ver <code>supabase/README.md</code></td>
+          </tr>
+          <tr>
+            <td>"prepared statement _pg3_X already exists"</td>
+            <td>Conflicto entre psycopg y PgBouncer (transaction mode)</td>
+            <td>Ya resuelto en la app con <code>prepare_threshold=None</code></td>
+          </tr>
+          <tr>
+            <td>"Faltan campos requeridos en la hoja Trazabilidad"</td>
+            <td>Excel sin uno de los campos obligatorios</td>
+            <td>Verifica Nombre, Producto, Tipo, Caracteristica y Tipo de grafico</td>
+          </tr>
+          <tr>
+            <td>"El subgrupo X tiene Y mediciones; se esperaban N"</td>
+            <td>Filas con distinto número de columnas en la hoja Datos</td>
+            <td>Asegura el mismo número de columnas en todos los subgrupos</td>
+          </tr>
+          <tr>
+            <td>Los gráficos no se renderizan</td>
+            <td>JavaScript bloqueado o sin conexión al CDN de Plotly</td>
+            <td>Revisa la consola del navegador (F12) y permite scripts externos</td>
+          </tr>
+          <tr>
+            <td>"Se requieren al menos N datos"</td>
+            <td>Muestra demasiado pequeña para la prueba estadística</td>
+            <td>Aumenta el tamaño de muestra o usa una prueba menos exigente</td>
+          </tr>
+          <tr>
+            <td>El estudio no aparece tras crearlo (en Vercel)</td>
+            <td>SQLite efímero en serverless</td>
+            <td>Configura <code>DATABASE_URL</code> con Supabase Postgres</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 16. GLOSARIO -->
+    <section id="glosario" class="card">
+      <h2>16. Glosario</h2>
+      <dl>
+        <dt><strong>Atributo</strong></dt>
+        <dd>Característica de calidad que se evalúa como presencia/ausencia o conteo (defectos, manchas).</dd>
+
+        <dt><strong>Capacidad del proceso</strong></dt>
+        <dd>Aptitud de un proceso para producir dentro de los límites de especificación.</dd>
+
+        <dt><strong>Causa asignable (especial)</strong></dt>
+        <dd>Fuente identificable de variación no inherente al proceso. Ej: lote de materia prima
+            distinto, falla de un equipo, cambio de operador.</dd>
+
+        <dt><strong>Causa común (aleatoria)</strong></dt>
+        <dd>Variación inherente al proceso, presente todo el tiempo. Solo se reduce
+            rediseñando el sistema.</dd>
+
+        <dt><strong>LSC / LIC (UCL / LCL)</strong></dt>
+        <dd>Límites superior / inferior de control. Calculados como ±3σ desde la línea central.</dd>
+
+        <dt><strong>LSL / USL</strong></dt>
+        <dd>Lower / Upper Specification Limit. Límites del producto definidos por especificación
+            técnica o normativa.</dd>
+
+        <dt><strong>Proceso en control estadístico</strong></dt>
+        <dd>Proceso cuya variabilidad proviene únicamente de causas comunes; es predecible
+            estadísticamente.</dd>
+
+        <dt><strong>Subgrupo</strong></dt>
+        <dd>Conjunto de mediciones tomadas en condiciones lo más homogéneas posibles
+            (mismo turno, mismo lote, mismo momento).</dd>
+
+        <dt><strong>Variable</strong></dt>
+        <dd>Característica medible numéricamente: peso, longitud, °Bx, pH.</dd>
+      </dl>
+    </section>
+
+    <div class="card text-center">
+      <a href="#intro" class="btn btn-secondary">↑ Volver al inicio del manual</a>
+      <a href="{{ url_for('informe') }}" class="btn btn-primary">Ver informe técnico →</a>
+    </div>
   </div>
 </div>
 {% endblock %}

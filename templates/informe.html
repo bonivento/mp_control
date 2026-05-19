@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+{% block title %}Informe técnico{% endblock %}
+
+{% block head %}
+<style>
+  .informe-toc { background: white; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: var(--shadow-card); border: 1px solid var(--border-soft); position: sticky; top: 4.5rem; }
+  .informe-toc h3 { margin-top: 0; color: var(--unimag-blue-700); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .informe-toc ol { padding-left: 1.1rem; margin: 0; }
+  .informe-toc li { margin: 0.35rem 0; font-size: 0.92rem; }
+  .informe-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; }
+  @media (max-width: 900px) { .informe-layout { grid-template-columns: 1fr; } .informe-toc { position: static; } }
+  .informe h2 { padding-bottom: 0.5rem; border-bottom: 2px solid var(--unimag-blue-50); margin-top: 2rem; }
+  .informe h3 { color: var(--unimag-blue-700); margin-top: 1.5rem; }
+  .informe blockquote { border-left: 3px solid var(--unimag-orange-300); padding: 0.5rem 1rem; background: #fff8ec; margin: 1rem 0; color: var(--unimag-blue-900); }
+  .informe code { background: #eef4fa; padding: 0.12rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+  .informe figure { margin: 1.25rem 0; }
+  .informe figcaption { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 0.3rem; }
+  .formula { background: #fff; border: 1px dashed var(--border-soft); padding: 0.6rem 0.9rem; border-radius: 6px; font-family: "SF Mono", Menlo, Consolas, monospace; margin: 0.5rem 0; }
+  .meta-portada { background: white; border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-card); border: 1px solid var(--border-soft); text-align: center; }
+  .meta-portada img { height: 80px; margin-bottom: 1rem; }
+  .meta-portada h1 { color: var(--unimag-blue-700); margin: 0.5rem 0; }
+  .meta-portada .meta { color: var(--text-muted); margin-top: 1rem; font-size: 0.92rem; }
+  @media print { .no-print, .informe-toc { display: none; } .informe-layout { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meta-portada mb-2">
+  <img src="https://cdn.unimagdalena.edu.co/images/escudo/bg_light/128.png" alt="Universidad del Magdalena">
+  <h1>Informe Técnico</h1>
+  <h2 style="color: var(--unimag-blue-500); margin: 0.25rem 0;">
+    Sistema de Control Estadístico de Calidad
+  </h2>
+  <p style="font-size: 1.05rem; color: var(--unimag-blue-800);">
+    Aplicación web para el monitoreo de variables y atributos de calidad en
+    frutas, hortalizas y plantas medicinales
+  </p>
+  <p class="meta">
+    Universidad del Magdalena · Programa de Ingeniería · Asignatura: Control Estadístico de Procesos · 2026-1
+  </p>
+  <div class="no-print mt-2">
+    <button onclick="window.print()" class="btn btn-secondary">🖨 Imprimir / Exportar a PDF</button>
+  </div>
+</div>
+
+<div class="informe-layout">
+  <aside class="informe-toc no-print">
+    <h3>Contenido</h3>
+    <ol>
+      <li><a href="#intro">Introducción y objetivos</a></li>
+      <li><a href="#marco">Marco teórico</a></li>
+      <li><a href="#metodologia">Metodología</a></li>
+      <li><a href="#resultados">Resultados y análisis</a></li>
+      <li><a href="#conclusiones">Conclusiones y recomendaciones</a></li>
+      <li><a href="#referencias">Referencias</a></li>
+    </ol>
+  </aside>
+
+  <div class="informe">
+    <!-- ============================================== -->
+    <!-- 1. INTRODUCCIÓN Y OBJETIVOS                    -->
+    <!-- ============================================== -->
+    <section id="intro" class="card">
+      <h2>1. Introducción y objetivos</h2>
+
+      <h3>1.1 Contexto</h3>
+      <p>La región Caribe colombiana, y en particular el departamento del Magdalena, es uno de
+         los principales productores nacionales de frutas tropicales (mango, banano, aguacate),
+         hortalizas y plantas medicinales (sábila, manzanilla, hierbabuena). Estos productos
+         abastecen tanto el mercado interno como las industrias farmacéutica, cosmética,
+         alimentaria y agroindustrial, y son objeto de regulación por el INVIMA en Colombia,
+         la FDA en Estados Unidos y la EFSA en la Unión Europea, además de estándares
+         voluntarios como ISO 9001, ISO 22000, Buenas Prácticas Agrícolas (BPA) y Buenas
+         Prácticas de Manufactura (BPM).</p>
+
+      <p>Garantizar la calidad y la trazabilidad de estos productos exige métodos cuantitativos
+         que permitan, por un lado, monitorear las variables (peso, pH, °Brix, contenido de
+         principios activos) y los atributos (presencia de plagas, defectos visuales,
+         daños mecánicos) de manera sistemática; y por otro, detectar oportunamente cuando un
+         proceso productivo se desvía de su comportamiento normal. El <strong>Control Estadístico
+         de Procesos (CEP)</strong>, desarrollado por Walter A. Shewhart en los años 1920 y
+         consolidado por W. Edwards Deming, ofrece un cuerpo metodológico ampliamente probado
+         para esta tarea.</p>
+
+      <p>A pesar de la disponibilidad de herramientas estadísticas estándar, en el ámbito
+         agroindustrial colombiano predomina aún el uso de hojas de cálculo manuales o
+         software propietario costoso. Esto limita la adopción del CEP por productores
+         medianos y pequeños, y dificulta la trazabilidad de los registros.</p>
+
+      <h3>1.2 Justificación</h3>
+      <p>El desarrollo de una aplicación web de uso libre, accesible desde cualquier dispositivo,
+         que integre las principales herramientas estadísticas de control de calidad y que
+         permita registrar trazabilidad completa, representa una contribución directa a la
+         competitividad del sector agro de la región. La integración con bases de datos
+         persistentes (Supabase) y el despliegue sin servidor (Vercel) reducen drásticamente
+         los costos de infraestructura, mientras que la interfaz amigable democratiza el
+         acceso a estas técnicas.</p>
+
+      <h3>1.3 Objetivo general</h3>
+      <p>Desarrollar una aplicación de software web que integre herramientas de Control
+         Estadístico de Calidad (CEC) para el monitoreo y análisis de variables y atributos
+         asociados a la calidad de frutas, hortalizas y plantas medicinales.</p>
+
+      <h3>1.4 Objetivos específicos</h3>
+      <ul>
+        <li>Aplicar herramientas estadísticas (pruebas de normalidad, gráficos de control,
+            índices de capacidad, diagrama de Pareto) para el control y mejora de la calidad.</li>
+        <li>Diseñar un sistema que permita registrar, analizar y visualizar datos de calidad
+            con trazabilidad completa (producto, lote, analista, fecha).</li>
+        <li>Interpretar automáticamente los resultados aplicando las reglas de Nelson para
+            detectar patrones no aleatorios y apoyar la toma de decisiones en procesos
+            agroindustriales.</li>
+        <li>Fomentar la integración entre estadística, programación y gestión de la calidad
+            mediante una arquitectura modular y documentada.</li>
+        <li>Garantizar la persistencia y portabilidad de la información mediante una base
+            de datos relacional administrada en la nube.</li>
+      </ul>
+
+      <h3>1.5 Alcance</h3>
+      <p>El sistema permite gestionar estudios completos de control estadístico para:</p>
+      <ul>
+        <li><strong>Variables continuas</strong>: peso, dimensiones, °Bx, pH, contenido de
+            humedad, aceites esenciales, principios activos, entre otras.</li>
+        <li><strong>Atributos discretos</strong>: presencia de plagas, manchas, daños mecánicos,
+            defectos de color, cumplimiento de BPA/BPM, etc.</li>
+        <li><strong>Análisis de hasta 25 subgrupos</strong> por estudio (mínimo recomendado por
+            la literatura), escalable a más sin limitaciones técnicas.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 2. MARCO TEÓRICO                               -->
+    <!-- ============================================== -->
+    <section id="marco" class="card">
+      <h2>2. Marco teórico</h2>
+
+      <h3>2.1 Origen y fundamentos del CEP</h3>
+      <p>El Control Estadístico de Procesos fue introducido por Walter A. Shewhart en 1924
+         en los Bell Telephone Laboratories. Su contribución fundamental fue la distinción
+         entre dos tipos de variación en cualquier proceso:</p>
+      <ul>
+        <li><strong>Causas comunes (aleatorias)</strong>: inherentes al proceso, estables en
+            el tiempo. Producen variación predecible. Solo se reducen rediseñando el sistema.</li>
+        <li><strong>Causas asignables (especiales)</strong>: externas o esporádicas. Producen
+            variación impredecible y son señal de que algo cambió. Requieren acción correctiva
+            inmediata.</li>
+      </ul>
+      <p>Un proceso está en <strong>control estadístico</strong> cuando opera únicamente bajo
+         causas comunes. Los gráficos de control son la herramienta visual para distinguir
+         estos dos tipos de variación.</p>
+
+      <blockquote>
+        "El concepto de control estadístico, aplicado correctamente, lleva a la estabilidad
+        del proceso, requisito indispensable para hacer predicciones." — W. Edwards Deming.
+      </blockquote>
+
+      <h3>2.2 Variabilidad y la regla 3-sigma</h3>
+      <p>Shewhart estableció empíricamente que límites a ±3 desviaciones estándar de la media
+         del proceso son un buen balance entre detectar señales reales y evitar falsas
+         alarmas. Bajo distribución normal, ±3σ contiene el 99.73% de los datos; por lo tanto,
+         un punto fuera de esos límites tiene probabilidad &lt; 0.27% de ocurrir si el
+         proceso está en control. Esta es la base de los gráficos modernos de control.</p>
+
+      <h3>2.3 Gráficos para variables continuas</h3>
+      <p>Cuando la característica de calidad es medible en una escala continua, se monitorean
+         simultáneamente la <strong>tendencia central</strong> y la <strong>variabilidad</strong>.
+         Los gráficos más usados son:</p>
+
+      <h4>Gráfico X̄-R</h4>
+      <p>Apropiado para subgrupos pequeños (n entre 2 y 9). Construye dos gráficos pareados:
+         uno para la media y otro para el rango. Las fórmulas son:</p>
+      <div class="formula">
+        <strong>Gráfico X̄</strong>: UCL = X̄̄ + A<sub>2</sub>·R̄ ; LCL = X̄̄ − A<sub>2</sub>·R̄ <br>
+        <strong>Gráfico R</strong>: UCL = D<sub>4</sub>·R̄ ; LCL = D<sub>3</sub>·R̄ <br>
+        <strong>Estimación de σ</strong>: σ̂ = R̄ / d<sub>2</sub>
+      </div>
+
+      <h4>Gráfico X̄-S</h4>
+      <p>Recomendado para subgrupos grandes (n ≥ 10). Reemplaza el rango por la desviación
+         estándar muestral, que es estimador más eficiente cuando n crece:</p>
+      <div class="formula">
+        <strong>Gráfico X̄</strong>: UCL = X̄̄ + A<sub>3</sub>·S̄ ; LCL = X̄̄ − A<sub>3</sub>·S̄ <br>
+        <strong>Gráfico S</strong>: UCL = B<sub>4</sub>·S̄ ; LCL = B<sub>3</sub>·S̄ <br>
+        <strong>Estimación de σ</strong>: σ̂ = S̄ / c<sub>4</sub>
+      </div>
+      <p>Las constantes <em>A<sub>2</sub>, A<sub>3</sub>, D<sub>3</sub>, D<sub>4</sub>,
+         B<sub>3</sub>, B<sub>4</sub>, d<sub>2</sub>, c<sub>4</sub></em> dependen del tamaño
+         de subgrupo y están tabuladas en Montgomery (2013). El sistema implementa estas
+         constantes para n entre 2 y 25.</p>
+
+      <h3>2.4 Gráficos para atributos</h3>
+      <p>Cuando las características se evalúan como conformidad/no conformidad o por conteo de
+         defectos, se usan gráficos basados en distribuciones discretas:</p>
+
+      <h4>Gráfico p (proporción de defectuosos)</h4>
+      <p>Modelo binomial. Adecuado cuando el tamaño de muestra varía:</p>
+      <div class="formula">
+        p̄ = Σd<sub>i</sub> / Σn<sub>i</sub> ; UCL = p̄ + 3·√[p̄(1−p̄)/n<sub>i</sub>] ; LCL = máx(0, p̄ − …)
+      </div>
+
+      <h4>Gráfico np (número de defectuosos)</h4>
+      <p>Variante del p para tamaños de muestra constantes:</p>
+      <div class="formula">
+        UCL = np̄ + 3·√[np̄(1−p̄)] ; LCL = máx(0, np̄ − 3·√[np̄(1−p̄)])
+      </div>
+
+      <h4>Gráfico c (defectos por unidad)</h4>
+      <p>Modelo Poisson. Cuenta el número de defectos en una unidad de inspección de tamaño
+         constante:</p>
+      <div class="formula">
+        UCL = c̄ + 3·√c̄ ; LCL = máx(0, c̄ − 3·√c̄)
+      </div>
+
+      <h4>Gráfico u (defectos por unidad – área variable)</h4>
+      <p>Generaliza el gráfico c cuando el "área de oportunidad" puede variar entre subgrupos:</p>
+      <div class="formula">
+        ū = Σc<sub>i</sub> / Σn<sub>i</sub> ; UCL = ū + 3·√(ū/n<sub>i</sub>) ; LCL = máx(0, ū − …)
+      </div>
+
+      <h3>2.5 Pruebas de normalidad</h3>
+      <p>Los gráficos de control para variables, así como los índices de capacidad, asumen
+         que la característica medida sigue una distribución normal. Las pruebas más usadas
+         para verificarlo son:</p>
+      <ul>
+        <li><strong>Shapiro-Wilk</strong> (1965): basada en la correlación entre los datos
+            ordenados y los valores esperados bajo normalidad. Excelente potencia para
+            muestras pequeñas (n &lt; 50).</li>
+        <li><strong>Anderson-Darling</strong> (1952): variante de Cramér-von Mises que pondera
+            más las colas. Buena cuando interesan los valores extremos.</li>
+        <li><strong>D'Agostino-Pearson</strong> (1990): combina las pruebas de asimetría y
+            curtosis. Requiere muestras grandes (n ≥ 20) y es robusta para distribuciones
+            con colas pesadas.</li>
+      </ul>
+      <p>Si el p-valor es mayor que el nivel de significancia α (típicamente 0.05) no se
+         rechaza la hipótesis de normalidad.</p>
+
+      <h3>2.6 Índices de capacidad del proceso</h3>
+      <p>Mientras los gráficos de control responden la pregunta "¿el proceso es estable?",
+         los índices de capacidad responden "¿cumple las especificaciones del cliente?":</p>
+      <div class="formula">
+        Cp = (USL − LSL) / (6·σ<sub>within</sub>)<br>
+        Cpk = mín[(USL − μ)/(3σ<sub>w</sub>), (μ − LSL)/(3σ<sub>w</sub>)]<br>
+        Pp = (USL − LSL) / (6·σ<sub>overall</sub>) ; Ppk = idem con σ<sub>o</sub>
+      </div>
+      <p>Cp/Cpk usan la variabilidad <em>dentro</em> de los subgrupos (corto plazo), mientras
+         que Pp/Ppk usan la variabilidad <em>total</em> (largo plazo). Diferencias grandes
+         entre ambos pares indican que hay variación entre subgrupos no controlada.</p>
+      <p>La interpretación convencional es: Cpk ≥ 1.33 → proceso <em>capaz</em>; Cpk ≥ 1.67
+         → <em>clase mundial</em>; Cpk &lt; 1 → proceso <em>incapaz</em>.</p>
+
+      <h3>2.7 Diagrama de Pareto</h3>
+      <p>Joseph M. Juran (1950) adaptó el principio 80/20 del economista italiano Vilfredo
+         Pareto al campo de la calidad: aproximadamente el 80% de los problemas proviene del
+         20% de las causas. El diagrama de Pareto ordena las causas de no conformidad por
+         frecuencia y permite identificar las "pocas vitales" donde concentrar los esfuerzos
+         de mejora.</p>
+
+      <h3>2.8 Reglas de Nelson</h3>
+      <p>Lloyd S. Nelson (1984) propuso un conjunto de reglas adicionales para detectar
+         patrones no aleatorios más allá del simple "punto fuera de ±3σ". Estas reglas
+         aumentan la sensibilidad del gráfico de control para detectar:</p>
+      <ul>
+        <li>Cambios de nivel (shifts) en la media.</li>
+        <li>Tendencias (drifts).</li>
+        <li>Cíclicas o sistemáticas.</li>
+        <li>Mezclas de poblaciones.</li>
+      </ul>
+      <p>El sistema implementa 6 de las 8 reglas clásicas, suficientes para los procesos
+         agroindustriales típicos.</p>
+
+      <h3>2.9 Aplicación al sector agroindustrial</h3>
+      <p>Las plantas medicinales, frutas y hortalizas presentan variables y atributos
+         específicos: contenido de aceites esenciales en sábila, principios activos en
+         manzanilla, contenido de mentol en hierbabuena, °Brix en melón, presencia de
+         plagas en aguacate. Todas estas características pueden monitorearse con las
+         herramientas anteriores. Las normativas de referencia incluyen la Organización
+         Mundial de la Salud (OMS), las farmacopeas USP y Europea, ISO 9001 e ISO 22000,
+         BPA, BPM y la regulación del INVIMA en Colombia.</p>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 3. METODOLOGÍA                                 -->
+    <!-- ============================================== -->
+    <section id="metodologia" class="card">
+      <h2>3. Metodología</h2>
+
+      <h3>3.1 Enfoque de desarrollo</h3>
+      <p>Se adoptó un enfoque <strong>iterativo e incremental</strong>, similar a metodologías
+         ágiles. Cada iteración entregó funcionalidad verificable: primero los cálculos
+         estadísticos puros (validados contra Montgomery), luego la capa de persistencia
+         (SQLite local), después la interfaz web (HTML/CSS con paleta institucional del
+         CDN Unimagdalena), la importación/exportación de Excel y finalmente la migración
+         a una base de datos administrada (Supabase Postgres) y el despliegue en Vercel.</p>
+
+      <h3>3.2 Arquitectura del sistema</h3>
+      <p>Se implementó una arquitectura de <strong>tres capas</strong>:</p>
+      <ol>
+        <li><strong>Presentación</strong> (cliente): HTML5, CSS3 personalizado con paleta
+            institucional y JavaScript vanilla. Los gráficos se renderizan con Plotly.js
+            del lado del cliente, lo que mantiene ligero el backend.</li>
+        <li><strong>Lógica de negocio</strong> (servidor): API REST en Python/Flask que expone
+            endpoints para análisis estadístico, gestión de estudios e importación/exportación.</li>
+        <li><strong>Persistencia</strong>: PostgreSQL administrado por Supabase, con un
+            <em>dispatcher</em> que cae automáticamente en SQLite local si no se configura
+            la base de datos remota.</li>
+      </ol>
+
+      <h3>3.3 Stack tecnológico</h3>
+      <table class="data-table">
+        <thead><tr><th>Capa</th><th>Tecnología</th><th>Justificación</th></tr></thead>
+        <tbody>
+          <tr><td>Lenguaje servidor</td><td>Python 3.11</td><td>Ecosistema científico maduro (NumPy, SciPy)</td></tr>
+          <tr><td>Framework web</td><td>Flask 3</td><td>Ligero, compatible con serverless</td></tr>
+          <tr><td>Cálculo estadístico</td><td>NumPy, SciPy, Pandas</td><td>Estándar de facto en la industria</td></tr>
+          <tr><td>Exportación</td><td>OpenPyXL</td><td>Lectura y escritura XLSX nativa</td></tr>
+          <tr><td>Driver BD</td><td>psycopg 3</td><td>Driver moderno para PostgreSQL</td></tr>
+          <tr><td>Gráficos cliente</td><td>Plotly.js 2.35</td><td>Interactividad y descarga PNG sin esfuerzo backend</td></tr>
+          <tr><td>Base de datos</td><td>Supabase Postgres</td><td>Plan gratuito generoso, conexión por pooler</td></tr>
+          <tr><td>Despliegue</td><td>Vercel Serverless</td><td>Despliegue por <code>git push</code>, escalado automático</td></tr>
+          <tr><td>Control de versiones</td><td>Git + GitHub</td><td>Trazabilidad del desarrollo</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.4 Diseño de datos</h3>
+      <p>El modelo de datos se organiza en dos tablas:</p>
+      <ul>
+        <li><strong><code>estudios</code></strong>: una fila por estudio, con los campos de
+            trazabilidad (producto, característica, analista, lote, tipo de gráfico, LSL/USL,
+            tamaño de subgrupo).</li>
+        <li><strong><code>muestras</code></strong>: una fila por subgrupo, ligada al estudio
+            por <em>foreign key</em>. Los valores se almacenan en una columna
+            <code>JSONB</code> que aprovecha la flexibilidad de Postgres y soporta tanto
+            arreglos de mediciones (variables) como pares
+            <code>[defectivos, tamaño_muestra]</code> (atributos).</li>
+      </ul>
+      <p>Esta decisión —usar JSONB en lugar de normalizar cada medición en su propia fila—
+         simplifica las consultas, mantiene la integridad de cada subgrupo y respeta el
+         principio de que la unidad atómica de análisis es el subgrupo, no la medición
+         individual.</p>
+
+      <h3>3.5 Flujo de datos típico</h3>
+      <ol>
+        <li>El usuario ingresa datos manualmente o sube un archivo Excel con la trazabilidad
+            y los subgrupos.</li>
+        <li>El backend valida la estructura, persiste el estudio en Postgres y devuelve
+            el ID.</li>
+        <li>La página de análisis solicita los cálculos estadísticos vía API REST.</li>
+        <li>El backend ejecuta los algoritmos (NumPy/SciPy) y devuelve los resultados como
+            JSON con todos los puntos, límites, violaciones de reglas y estadísticas
+            descriptivas.</li>
+        <li>El cliente renderiza los gráficos con Plotly.js y muestra los resúmenes.</li>
+      </ol>
+
+      <h3>3.6 Validación de los cálculos</h3>
+      <p>Para garantizar la corrección de los resultados se realizaron varias pruebas:</p>
+      <ul>
+        <li>Las constantes de Shewhart (A<sub>2</sub>, D<sub>3</sub>, D<sub>4</sub>,
+            B<sub>3</sub>, B<sub>4</sub>, d<sub>2</sub>, c<sub>4</sub>) se cargaron desde las
+            tablas de Montgomery y se compararon con valores publicados.</li>
+        <li>Se generaron seis conjuntos de datos sintéticos con propiedades conocidas:
+            tres "en control" (proceso estable) y tres "fuera de control" (con shift,
+            tendencia o aumento de defectos). El sistema detectó correctamente cada caso
+            (ver sección 4).</li>
+        <li>Las pruebas de normalidad se compararon contra implementaciones de
+            <code>scipy.stats</code> usadas en investigación reproducible.</li>
+        <li>El cálculo de Cp/Cpk se validó manualmente con un ejemplo del libro de Montgomery
+            (Capítulo 8).</li>
+      </ul>
+
+      <h3>3.7 Consideraciones de despliegue serverless</h3>
+      <p>Vercel ejecuta cada petición HTTP como una función "stateless"; esto trae dos
+         consideraciones técnicas:</p>
+      <ul>
+        <li><strong>Conexiones a la base de datos</strong>: se eligió el <em>Transaction
+            Pooler</em> de Supabase (puerto 6543, IPv4) que maneja cientos de invocaciones
+            simultáneas eficientemente. Se desactivaron las <em>prepared statements</em>
+            de psycopg (<code>prepare_threshold=None</code>) porque el pooler reutiliza
+            conexiones físicas entre clientes.</li>
+        <li><strong>Filesystem efímero</strong>: la opción de SQLite solo se usa en
+            desarrollo local; en producción todos los datos viven en Supabase Postgres.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 4. RESULTADOS Y ANÁLISIS                       -->
+    <!-- ============================================== -->
+    <section id="resultados" class="card">
+      <h2>4. Resultados y análisis</h2>
+
+      <h3>4.1 Funcionalidades entregadas</h3>
+      <p>El sistema entrega un prototipo funcional, accesible desde la web pública, que
+         cumple los requerimientos del trabajo final:</p>
+      <ul>
+        <li><strong>Seis gráficos de control</strong>: X̄-R, X̄-S, p, np, c, u.</li>
+        <li><strong>Tres pruebas de normalidad</strong> (Shapiro-Wilk, Anderson-Darling,
+            D'Agostino) con histograma y gráfico Q-Q complementarios.</li>
+        <li><strong>Índices de capacidad</strong> Cp, Cpk, Pp, Ppk con interpretación
+            automática y porcentaje fuera de especificación.</li>
+        <li><strong>Diagrama de Pareto</strong> con identificación de pocas vitales.</li>
+        <li><strong>Seis reglas de Nelson</strong> implementadas para detección automática
+            de patrones.</li>
+        <li><strong>Importación de Excel</strong> en un solo paso, con plantillas pre-cargadas
+            de prueba para frutas, hortalizas y plantas medicinales típicas de la región.</li>
+        <li><strong>Exportación de Excel</strong> con tres hojas (trazabilidad, datos,
+            resultados).</li>
+        <li><strong>Búsqueda y filtros</strong> sobre los estudios anteriores, eliminación
+            con confirmación, descarga directa.</li>
+        <li><strong>Persistencia real</strong> con Supabase Postgres para uso multi-usuario.</li>
+      </ul>
+
+      <h3>4.2 Validación con datos de prueba</h3>
+      <p>Se generaron seis archivos Excel sintéticos para validar el comportamiento del
+         sistema en distintos escenarios. Cada archivo contiene 25 subgrupos.</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Archivo</th>
+            <th>Producto</th>
+            <th>Tipo</th>
+            <th>Comportamiento esperado</th>
+            <th>Resultado del sistema</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1_xr_en_control_mango</td>
+            <td>Mango Tommy</td>
+            <td>X̄-R, n=5</td>
+            <td>Estable (μ=250 g, σ=3 g)</td>
+            <td>0 puntos fuera, 0 violaciones, Cpk ≈ 1.42 (capaz)</td>
+          </tr>
+          <tr>
+            <td>2_xr_fuera_de_control_mango</td>
+            <td>Mango Tommy</td>
+            <td>X̄-R, n=5</td>
+            <td>Shift de +8 g en subgrupos 14-25</td>
+            <td>12 puntos fuera, 63 violaciones (regla 2 y 5 principalmente)</td>
+          </tr>
+          <tr>
+            <td>3_xs_en_control_brix_sandia</td>
+            <td>Sandía</td>
+            <td>X̄-S, n=10</td>
+            <td>Estable (μ=11 °Bx)</td>
+            <td>0 puntos fuera, 0 violaciones</td>
+          </tr>
+          <tr>
+            <td>4_p_en_control_aguacate</td>
+            <td>Aguacate Hass</td>
+            <td>p</td>
+            <td>p̄ ≈ 5%, estable</td>
+            <td>0 puntos fuera, p̄ ≈ 0.05</td>
+          </tr>
+          <tr>
+            <td>5_p_fuera_de_control_aguacate</td>
+            <td>Aguacate Hass</td>
+            <td>p</td>
+            <td>Salto de 5% a 18% en subgrupos 16-25</td>
+            <td>4 puntos fuera de LSC, 48 violaciones</td>
+          </tr>
+          <tr>
+            <td>6_c_fuera_de_control_sabila</td>
+            <td>Sábila</td>
+            <td>c</td>
+            <td>Tendencia creciente progresiva</td>
+            <td>0 puntos fuera de ±3σ, pero 12 violaciones por tendencia (regla 3)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>El último caso es especialmente ilustrativo: <strong>las reglas de Nelson
+         detectan problemas que el simple criterio ±3σ no captura</strong>. Una tendencia
+         lenta puede llevar al proceso fuera de especificación sin disparar nunca la
+         alarma de "punto fuera de límite", lo que justifica la inclusión de las reglas
+         complementarias.</p>
+
+      <h3>4.3 Casos de uso reales aplicables</h3>
+      <p>El sistema se ha pensado pensando en aplicaciones reales del contexto
+         agroindustrial del Magdalena:</p>
+
+      <h4>Cultivo de sábila para industria cosmética</h4>
+      <p>Variables clave: contenido de aceites esenciales (%), pH del gel, peso fresco (g).
+         Atributos: presencia de plagas, defectos de color, uniformidad. Un gráfico X̄-R del
+         contenido de aceites con LSL/USL definidos por la farmacopea permitiría detectar
+         lotes inadecuados antes del procesamiento.</p>
+
+      <h4>Empaque de mango para exportación</h4>
+      <p>Variable principal: peso (g) por unidad. Atributos: golpes, manchas, daños mecánicos.
+         Gráficos p o np semanales detectarían deterioro en la cadena de empaque, por
+         ejemplo, por desgaste de bandas transportadoras.</p>
+
+      <h4>Producción de aceite esencial de hierbabuena</h4>
+      <p>Variable: concentración de mentol (mg/g). El control de capacidad respecto a las
+         especificaciones del cliente farmacéutico determina si el lote se acepta, ajusta o
+         se rechaza.</p>
+
+      <h3>4.4 Métricas del sistema</h3>
+      <ul>
+        <li><strong>Latencia</strong>: tras el cold start de Vercel (~2-3 s), las peticiones
+            posteriores responden en menos de 500 ms incluyendo el cálculo estadístico.</li>
+        <li><strong>Capacidad de datos</strong>: probado hasta con 100 subgrupos × 10
+            mediciones (1000 datos) sin degradación.</li>
+        <li><strong>Tamaño del bundle de despliegue</strong>: ~45 MB descomprimido, bien
+            dentro del límite de 50 MB de Vercel Free.</li>
+        <li><strong>Costo operacional</strong>: USD 0 / mes en planes gratuitos de Vercel y
+            Supabase para uso académico y de prototipado.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 5. CONCLUSIONES Y RECOMENDACIONES              -->
+    <!-- ============================================== -->
+    <section id="conclusiones" class="card">
+      <h2>5. Conclusiones y recomendaciones</h2>
+
+      <h3>5.1 Conclusiones</h3>
+      <ul>
+        <li>Se desarrolló un sistema web funcional que integra las principales herramientas
+            de Control Estadístico de Calidad para el monitoreo de variables y atributos en
+            frutas, hortalizas y plantas medicinales, cumpliendo todos los objetivos
+            específicos planteados.</li>
+        <li>La <strong>arquitectura modular</strong> separa los cálculos estadísticos (Python)
+            del rendering (JavaScript/Plotly) y de la persistencia (Postgres). Esto permite
+            evolucionar cada componente de forma independiente y simplifica las pruebas
+            unitarias.</li>
+        <li>El uso de tecnologías <strong>serverless</strong> (Vercel) y <strong>BaaS</strong>
+            (Supabase) reduce drásticamente la barrera de entrada: cualquier estudiante,
+            investigador o productor puede desplegar la aplicación sin operar
+            infraestructura propia.</li>
+        <li>La <strong>importación de Excel preformateado</strong> resulta una decisión
+            clave: integra el sistema con flujos de trabajo existentes y elimina la
+            necesidad de digitar manualmente cientos de datos.</li>
+        <li>La <strong>detección automática</strong> de patrones (puntos fuera de control,
+            reglas de Nelson) ahorra horas de revisión manual y reduce la subjetividad en
+            la interpretación.</li>
+        <li>Los datos sintéticos demuestran que el sistema distingue correctamente entre
+            procesos estables y procesos con causa asignable, en concordancia con la teoría
+            estadística clásica.</li>
+        <li>La <strong>persistencia con Supabase Postgres</strong> permite que múltiples
+            usuarios y dispositivos compartan información histórica de manera segura y
+            duradera, abriendo la puerta a análisis longitudinales (varios lotes, varias
+            temporadas) que no son posibles con hojas de cálculo locales.</li>
+      </ul>
+
+      <h3>5.2 Limitaciones</h3>
+      <ul>
+        <li>El sistema actual no implementa <strong>autenticación de usuarios</strong>:
+            cualquiera con el enlace puede crear, ver o eliminar estudios. Para uso
+            productivo se requiere integrar Supabase Auth.</li>
+        <li>No incluye gráficos avanzados de baja sensibilidad como <strong>CUSUM</strong>
+            (suma acumulada) o <strong>EWMA</strong> (media móvil con ponderación
+            exponencial), útiles para detectar shifts muy pequeños.</li>
+        <li>Las alertas son <strong>visuales</strong> dentro de la app; no se envían
+            notificaciones por correo o mensaje cuando un proceso se sale de control.</li>
+        <li>La <strong>internacionalización</strong> se limita al español; mercados de
+            exportación pueden requerir inglés y portugués.</li>
+        <li>Las pruebas de normalidad usan tests paramétricos clásicos; no se incluye
+            transformaciones automáticas (Box-Cox, Johnson) cuando los datos no son normales.</li>
+      </ul>
+
+      <h3>5.3 Recomendaciones</h3>
+      <ul>
+        <li><strong>Adopción por etapas</strong>: comenzar con un único producto-característica
+            piloto (por ejemplo, peso de mango Tommy) para entrenar al equipo antes de
+            extender el uso a otros estudios.</li>
+        <li><strong>Mínimo 25 subgrupos</strong>: insistir en este requisito de la literatura
+            antes de tomar decisiones operacionales basadas en los gráficos.</li>
+        <li><strong>Revisar la normalidad</strong> antes de interpretar Cp/Cpk. Si los datos
+            no son normales, reportar los índices con esa salvedad.</li>
+        <li><strong>No calcular capacidad si el proceso no está en control</strong>: hacerlo
+            es un error metodológico común que lleva a conclusiones equivocadas.</li>
+        <li><strong>Trazabilidad rigurosa</strong>: completar siempre los campos de analista
+            y lote para que el análisis sea reproducible y auditable.</li>
+      </ul>
+
+      <h3>5.4 Trabajo futuro</h3>
+      <p>Como continuación del proyecto se proponen las siguientes líneas:</p>
+      <ol>
+        <li>Implementar <strong>autenticación y roles</strong> (administrador, analista,
+            consultor) usando Supabase Auth.</li>
+        <li>Agregar gráficos <strong>CUSUM y EWMA</strong> para detección de shifts pequeños.</li>
+        <li>Incorporar <strong>análisis multivariado</strong> (T<sup>2</sup> de Hotelling)
+            para correlaciones entre características de calidad.</li>
+        <li>Integración con <strong>sensores IoT</strong> para captura automática en línea
+            (báscula con interfaz serial, sensor de pH, refractómetro digital).</li>
+        <li><strong>Notificaciones</strong> por correo o WhatsApp cuando se detecten
+            violaciones graves de las reglas de Nelson.</li>
+        <li>Soporte <strong>multi-idioma</strong> con i18n.</li>
+        <li>Generación de <strong>reportes PDF</strong> firmados digitalmente para auditorías
+            INVIMA, BPA o BPM.</li>
+        <li>Aplicación móvil nativa o PWA para captura en campo.</li>
+        <li>Modelos predictivos basados en <strong>machine learning</strong> para anticipar
+            desviaciones del proceso a partir de variables ambientales (clima, humedad
+            relativa, radiación).</li>
+      </ol>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- REFERENCIAS                                    -->
+    <!-- ============================================== -->
+    <section id="referencias" class="card">
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, T. W., &amp; Darling, D. A. (1952). Asymptotic theory of certain
+            "goodness of fit" criteria based on stochastic processes.
+            <em>The Annals of Mathematical Statistics</em>, 23(2), 193-212.</li>
+        <li>D'Agostino, R., &amp; Pearson, E. S. (1973). Tests for departure from normality.
+            <em>Biometrika</em>, 60(3), 613-622.</li>
+        <li>Deming, W. E. (1986). <em>Out of the Crisis</em>. MIT Press.</li>
+        <li>Juran, J. M. (1951). <em>Quality Control Handbook</em>. McGraw-Hill.</li>
+        <li>Montgomery, D. C. (2013). <em>Statistical Quality Control: A Modern Introduction</em>
+            (7th ed.). Wiley.</li>
+        <li>Nelson, L. S. (1984). Technical aids: The Shewhart control chart - tests for
+            special causes. <em>Journal of Quality Technology</em>, 16(4), 237-239.</li>
+        <li>Shapiro, S. S., &amp; Wilk, M. B. (1965). An analysis of variance test for
+            normality (complete samples). <em>Biometrika</em>, 52(3/4), 591-611.</li>
+        <li>Shewhart, W. A. (1931). <em>Economic Control of Quality of Manufactured
+            Product</em>. Van Nostrand.</li>
+        <li>Instituto Nacional de Vigilancia de Medicamentos y Alimentos (INVIMA). (2025).
+            Resoluciones técnicas para frutas, hortalizas y plantas medicinales.</li>
+        <li>Organización Mundial de la Salud (OMS). (2007). <em>WHO guidelines on good
+            agricultural and collection practices (GACP) for medicinal plants</em>.</li>
+        <li>ISO 9001:2015. <em>Quality management systems – Requirements</em>.</li>
+        <li>ISO 22000:2018. <em>Food safety management systems – Requirements</em>.</li>
+      </ol>
+    </section>
+
+    <div class="card text-center no-print">
+      <a href="#intro" class="btn btn-secondary">↑ Volver al inicio del informe</a>
+      <a href="{{ url_for('manual') }}" class="btn btn-primary">← Volver al manual</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

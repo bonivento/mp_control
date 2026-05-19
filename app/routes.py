@@ -77,6 +77,10 @@ def create_app() -> Flask:
     def manual():
         return render_template("manual.html")
 
+    @app.route("/informe")
+    def informe():
+        return render_template("informe.html")
+
     @app.route("/plantillas")
     def plantillas():
         samples_dir = os.path.join(os.path.dirname(app.template_folder), "samples")
