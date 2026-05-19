@@ -5,7 +5,8 @@ __pycache__/
 venv/
 env/
 .env
-.env.local
+.env.*
+!.env.example
 .vercel/
 data/*.db
 .DS_Store

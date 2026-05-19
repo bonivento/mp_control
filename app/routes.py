@@ -20,14 +20,29 @@ def create_app() -> Flask:
     )
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "unimag-cec-2026-cambia-en-prod")
 
-    db.init_db()
+    @app.context_processor
+    def inject_backend():
+        return {"db_backend": db.BACKEND}
+
+    # init_db es lazy; cada función lo llama internamente para evitar
+    # fallos al importar cuando DATABASE_URL aún no está lista.
+    try:
+        db.init_db()
+    except Exception as e:
+        app.logger.warning(f"No se pudo inicializar la base de datos al arrancar: {e}")
 
     # ---------- Vistas HTML ----------
 
     @app.route("/")
     def index():
-        estudios = db.listar_estudios()
-        return render_template("index.html", estudios=estudios)
+        try:
+            estudios = db.listar_estudios()
+            db_error = None
+        except Exception as e:
+            app.logger.error(f"Error listando estudios: {e}")
+            estudios = []
+            db_error = str(e)
+        return render_template("index.html", estudios=estudios, db_error=db_error)
 
     @app.route("/registro")
     def registro():

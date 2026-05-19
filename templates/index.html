@@ -13,6 +13,15 @@
   </div>
 </section>
 
+{% if db_error %}
+<div class="alert alert-danger">
+  <strong>No se pudo conectar a la base de datos.</strong><br>
+  {{ db_error }}<br>
+  <small>Revisa que <code>DATABASE_URL</code> esté correctamente configurada
+  (ver <code>supabase/README.md</code>) y que la base de datos sea accesible.</small>
+</div>
+{% endif %}
+
 <div class="card-grid">
   <div class="metric-card">
     <div class="label">Estudios registrados</div>
@@ -26,53 +35,127 @@
     <div class="label">Gráficos por atributos</div>
     <div class="value">{{ estudios | selectattr('tipo', 'equalto', 'atributo') | list | length }}</div>
   </div>
+  <div class="metric-card {% if db_backend == 'postgres' %}success{% else %}warn{% endif %}">
+    <div class="label">Almacenamiento</div>
+    <div class="value" style="font-size: 1.1rem;">
+      {% if db_backend == 'postgres' %}Supabase Postgres{% else %}SQLite (local){% endif %}
+    </div>
+  </div>
 </div>
 
 <div class="card">
   <div class="flex-between mb-2">
-    <h2 class="mb-0">Estudios registrados</h2>
-    <a href="{{ url_for('registro') }}" class="btn btn-primary btn-sm">+ Nuevo</a>
+    <h2 class="mb-0">Estudios anteriores</h2>
+    <a href="{{ url_for('registro') }}" class="btn btn-primary btn-sm">+ Nuevo estudio</a>
   </div>
 
   {% if estudios %}
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Producto</th>
-        <th>Tipo</th>
-        <th>Característica</th>
-        <th>Gráfico</th>
-        <th>Analista</th>
-        <th>Fecha</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for e in estudios %}
-      <tr>
-        <td>{{ e.id }}</td>
-        <td><strong>{{ e.nombre }}</strong></td>
-        <td>{{ e.producto }}</td>
-        <td>
-          {% if e.tipo == 'variable' %}<span class="badge badge-blue">Variable</span>
-          {% else %}<span class="badge badge-orange">Atributo</span>{% endif %}
-        </td>
-        <td>{{ e.caracteristica }}{% if e.unidad %} ({{ e.unidad }}){% endif %}</td>
-        <td><span class="badge badge-purple">{{ e.tipo_grafico | upper }}</span></td>
-        <td>{{ e.analista or '—' }}</td>
-        <td>{{ e.fecha_creacion[:10] }}</td>
-        <td>
-          <a href="{{ url_for('estudio_detalle', estudio_id=e.id) }}" class="btn btn-secondary btn-sm">Abrir</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="form-grid mb-2" style="grid-template-columns: 2fr 1fr 1fr 1fr;">
+    <div class="form-group">
+      <label>Buscar</label>
+      <input type="text" id="filtro-texto" placeholder="Nombre, producto, característica, analista, lote…">
+    </div>
+    <div class="form-group">
+      <label>Tipo</label>
+      <select id="filtro-tipo">
+        <option value="">Todos</option>
+        <option value="variable">Variable continua</option>
+        <option value="atributo">Atributo / conteo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Gráfico</label>
+      <select id="filtro-grafico">
+        <option value="">Todos</option>
+        <option value="xr">X̄-R</option>
+        <option value="xs">X̄-S</option>
+        <option value="p">p</option>
+        <option value="np">np</option>
+        <option value="c">c</option>
+        <option value="u">u</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Orden</label>
+      <select id="filtro-orden">
+        <option value="fecha-desc">Más recientes primero</option>
+        <option value="fecha-asc">Más antiguos primero</option>
+        <option value="nombre-asc">Nombre A-Z</option>
+        <option value="producto-asc">Producto A-Z</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="contador-estudios" class="text-muted mb-1" style="font-size: 0.88rem;">
+    Mostrando {{ estudios|length }} de {{ estudios|length }} estudios.
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="data-table" id="tabla-estudios">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Producto</th>
+          <th>Tipo</th>
+          <th>Característica</th>
+          <th>Gráfico</th>
+          <th>Analista</th>
+          <th>Lote</th>
+          <th>Fecha</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in estudios %}
+        <tr data-id="{{ e.id }}"
+            data-tipo="{{ e.tipo }}"
+            data-grafico="{{ e.tipo_grafico }}"
+            data-fecha="{{ e.fecha_creacion }}"
+            data-nombre="{{ e.nombre|lower }}"
+            data-producto="{{ e.producto|lower }}"
+            data-busqueda="{{ (e.nombre ~ ' ' ~ e.producto ~ ' ' ~ e.caracteristica ~ ' ' ~ (e.analista or '') ~ ' ' ~ (e.lote or ''))|lower }}">
+          <td>{{ e.id }}</td>
+          <td><strong>{{ e.nombre }}</strong></td>
+          <td>{{ e.producto }}</td>
+          <td>
+            {% if e.tipo == 'variable' %}<span class="badge badge-blue">Variable</span>
+            {% else %}<span class="badge badge-orange">Atributo</span>{% endif %}
+          </td>
+          <td>{{ e.caracteristica }}{% if e.unidad %} ({{ e.unidad }}){% endif %}</td>
+          <td><span class="badge badge-purple">{{ e.tipo_grafico | upper }}</span></td>
+          <td>{{ e.analista or '—' }}</td>
+          <td>{{ e.lote or '—' }}</td>
+          <td>{{ e.fecha_creacion[:10] }}</td>
+          <td>
+            <div class="flex gap-sm">
+              <a href="{{ url_for('estudio_detalle', estudio_id=e.id) }}"
+                 class="btn btn-secondary btn-sm">Abrir</a>
+              <a href="/api/estudios/{{ e.id }}/excel"
+                 class="btn btn-secondary btn-sm" title="Descargar Excel">⤓</a>
+              <button type="button" class="btn btn-danger btn-sm btn-eliminar"
+                      data-id="{{ e.id }}" data-nombre="{{ e.nombre }}" title="Eliminar estudio">×</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div id="sin-resultados" style="display:none" class="alert alert-info mt-2">
+    No hay estudios que coincidan con los filtros.
+  </div>
+
   {% else %}
   <div class="alert alert-info">
-    Aún no hay estudios registrados. Crea uno nuevo para comenzar el análisis estadístico.
+    Aún no hay estudios registrados.
+    {% if db_backend == 'sqlite' %}
+      Estás usando SQLite local. <strong>Para persistencia en producción configura
+      <code>DATABASE_URL</code></strong> con la conexión a Supabase
+      (ver <code>supabase/README.md</code>).
+    {% endif %}
+    Crea uno nuevo para comenzar el análisis.
   </div>
   {% endif %}
 </div>
@@ -83,7 +166,7 @@
     <div>
       <h3>Variables continuas</h3>
       <ul>
-        <li><strong>X̄-R</strong>: subgrupos de tamaño pequeño (2-9)</li>
+        <li><strong>X̄-R</strong>: subgrupos pequeños (2-9)</li>
         <li><strong>X̄-S</strong>: subgrupos grandes (≥10)</li>
         <li>Pruebas de normalidad (Shapiro-Wilk, Anderson-Darling, D'Agostino)</li>
         <li>Índices de capacidad (Cp, Cpk, Pp, Ppk)</li>
@@ -109,4 +192,8 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}

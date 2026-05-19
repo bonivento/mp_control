@@ -44,7 +44,7 @@ para monitoreo y análisis de variables y atributos de calidad en productos agr�
 | Exportación | OpenPyXL |
 | Frontend | HTML/CSS personalizado + Plotly.js 2.35 |
 | Marca | CDN oficial Universidad del Magdalena (logos + paleta) |
-| Persistencia | SQLite (local) / `/tmp` (Vercel) |
+| Persistencia | **Supabase Postgres** (producción) · SQLite (local) |
 | Despliegue | Vercel Serverless Functions |
 
 ---
@@ -57,7 +57,9 @@ control/
 │   └── index.py             # Entry point Flask (Vercel)
 ├── app/
 │   ├── routes.py            # Rutas Flask y API JSON
-│   ├── database.py          # Capa SQLite
+│   ├── database.py          # Dispatcher de backend (auto: postgres/sqlite)
+│   ├── db_postgres.py       # Backend Supabase Postgres (cuando hay DATABASE_URL)
+│   ├── db_sqlite.py         # Backend SQLite local (fallback)
 │   ├── excel_export.py      # Generación de Excel
 │   └── statistics/
 │       ├── constants.py     # Constantes de Shewhart (A2, D3, D4, B3, B4, d2, c4)
@@ -69,8 +71,12 @@ control/
 ├── static/
 │   ├── css/unimag.css       # Estilos con paleta Unimagdalena
 │   └── js/                  # Plotly + interacciones
-├── data/                    # SQLite local
+├── data/                    # SQLite local (no persiste en Vercel)
+├── supabase/
+│   ├── schema.sql           # SQL para crear las tablas en Supabase
+│   └── README.md            # Guía de configuración Supabase
 ├── docs/                    # Documentación adicional
+├── .env.example             # Plantilla de variables de entorno
 ├── requirements.txt
 ├── vercel.json
 └── README.md
@@ -84,14 +90,20 @@ control/
 # 1. Instalar dependencias
 pip install -r requirements.txt
 
-# 2. Arrancar servidor
+# 2. (Opcional) configurar Supabase localmente
+cp .env.example .env
+# editar .env y poner el DATABASE_URL real
+# Si no se configura, la app usa SQLite local (./data/control_calidad.db)
+
+# 3. Arrancar servidor
 python api/index.py --port 5050 --debug
 
-# 3. Abrir en el navegador
+# 4. Abrir en el navegador
 open http://localhost:5050
 ```
 
 > El puerto **5050** se usa en lugar de 5000 porque macOS ocupa 5000 con AirPlay.
+> El backend usado (Postgres o SQLite) se muestra en el dashboard.
 
 ---
 
@@ -120,18 +132,24 @@ open http://localhost:5050
 2. En el panel de Vercel: *Add New → Project → Import Git Repository*.
 3. Vercel detecta `vercel.json` automáticamente. Click en **Deploy**.
 
-### ⚠️ Importante sobre SQLite en Vercel
+### Persistencia con Supabase Postgres
 
-El filesystem de Vercel Serverless es **efímero**: los datos almacenados en `/tmp/control_calidad.db`
-no persisten entre invocaciones. Esto es aceptable para **demo y sustentación**, pero
-para uso real conviene migrar a una base de datos administrada.
+Para que los datos persistan en Vercel, configura `DATABASE_URL` apuntando a
+Supabase. Ver instrucciones detalladas en [`supabase/README.md`](supabase/README.md).
 
-#### Migración a Postgres (recomendado para producción)
+Resumen rápido:
 
-1. Crear DB gratis en [neon.tech](https://neon.tech) o [supabase.com](https://supabase.com).
-2. Agregar `psycopg[binary]` a `requirements.txt`.
-3. Sustituir `app/database.py` por una capa Postgres con el mismo API.
-4. Configurar la variable de entorno `DATABASE_URL` en Vercel.
+1. Crea las tablas ejecutando [`supabase/schema.sql`](supabase/schema.sql) en
+   el SQL Editor de Supabase.
+2. En Supabase: **Project Settings → Database → Connection string → Transaction (puerto 6543)**
+   y copia la URI. Reemplaza `[YOUR-PASSWORD]` por tu contraseña.
+3. En Vercel: **Settings → Environment Variables → New** y agrega:
+   - `DATABASE_URL` = la URI anterior
+   - `SECRET_KEY` = una cadena aleatoria larga
+4. Redeploy.
+
+La app detecta automáticamente la variable `DATABASE_URL`: si está, usa Supabase;
+si no, cae en SQLite local. El backend activo se ve en el dashboard.
 
 ---
 
