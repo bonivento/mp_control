@@ -15,10 +15,14 @@
 
 {% if db_error %}
 <div class="alert alert-danger">
-  <strong>No se pudo conectar a la base de datos.</strong><br>
-  {{ db_error }}<br>
-  <small>Revisa que <code>DATABASE_URL</code> esté correctamente configurada
-  (ver <code>supabase/README.md</code>) y que la base de datos sea accesible.</small>
+  <strong>No se pudo conectar a la base de datos.</strong>
+  {% if db_hint %}
+  <div class="mt-1" style="font-size: 0.95rem;">💡 {{ db_hint | safe }}</div>
+  {% endif %}
+  <details class="mt-1">
+    <summary style="cursor:pointer; font-size:0.85rem;">Ver mensaje técnico</summary>
+    <pre style="background:#fff; padding:0.5rem; border-radius:4px; overflow-x:auto; font-size:0.78rem; margin-top:0.5rem;">{{ db_error }}</pre>
+  </details>
 </div>
 {% endif %}
 

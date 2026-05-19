@@ -21,20 +21,42 @@ Si configuras `DATABASE_URL` correctamente, las tablas se crean solas.
 
 ## 2. Obtener la URL de conexión
 
+> ⚠️ **MUY IMPORTANTE**: en Vercel **debes** usar el **Transaction pooler**
+> (puerto 6543) y NO la conexión directa (puerto 5432). La conexión directa
+> usa IPv6 que Vercel no soporta — verás el error
+> `Cannot assign requested address` si lo intentas.
+
 1. En Supabase, ve a **Project Settings → Database**.
 2. Busca la sección **Connection string**.
-3. Cambia el selector a **Transaction** (puerto **6543**) — recomendado para serverless.
-4. Selecciona **URI**. Verás algo como:
+3. Verás varias opciones:
+
+   | Opción | Puerto | Host | ¿Sirve en Vercel? |
+   |---|---|---|---|
+   | Direct connection | 5432 | `db.<ref>.supabase.co` | ❌ NO (IPv6 only) |
+   | Session pooler    | 5432 | `aws-0-...pooler.supabase.com` | ✅ Sí |
+   | **Transaction pooler** | **6543** | `aws-0-...pooler.supabase.com` | ✅ **Recomendada** |
+
+4. Selecciona **Transaction pooler** y copia la URI:
 
    ```
-   postgresql://postgres.kicalhpqppkknqtjhtml:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+   postgresql://postgres.kicalhpqppkknqtjhtml:[YOUR-PASSWORD]@aws-0-<región>.pooler.supabase.com:6543/postgres
    ```
 
-5. Reemplaza `[YOUR-PASSWORD]` con la contraseña que definiste al crear el proyecto.
+5. **Reemplaza `[YOUR-PASSWORD]`** con la contraseña real (no dejes los corchetes).
 
-> **¿Por qué Transaction pooler?** Cada Lambda de Vercel obtiene una conexión del
-> pool de Supabase y la libera al terminar. Evita el problema de "demasiadas
-> conexiones" en serverless.
+> **¿Por qué Transaction pooler?** Cada invocación serverless en Vercel obtiene
+> una conexión del pool de Supabase y la libera al terminar. Es eficiente y
+> evita el límite de "demasiadas conexiones".
+
+### ¿Cómo identifico que estoy usando la URL correcta?
+
+✅ La URL **CORRECTA** tiene estas características:
+- Host: contiene `pooler.supabase.com`
+- Puerto: `6543`
+- Usuario: `postgres.<project_ref>` (con punto y el ref del proyecto)
+
+❌ Si tu URL termina en `:5432/postgres` y el host es `db.<ref>.supabase.co`,
+estás usando la conexión directa y NO funcionará en Vercel.
 
 ---
 

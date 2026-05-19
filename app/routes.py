@@ -38,11 +38,15 @@ def create_app() -> Flask:
         try:
             estudios = db.listar_estudios()
             db_error = None
+            db_hint = None
         except Exception as e:
             app.logger.error(f"Error listando estudios: {e}")
             estudios = []
             db_error = str(e)
-        return render_template("index.html", estudios=estudios, db_error=db_error)
+            db_hint = _diagnose_db_error(db_error)
+        return render_template(
+            "index.html", estudios=estudios, db_error=db_error, db_hint=db_hint
+        )
 
     @app.route("/registro")
     def registro():
@@ -224,6 +228,44 @@ def create_app() -> Flask:
         return render_template("404.html"), 404
 
     return app
+
+
+def _diagnose_db_error(err: str) -> str | None:
+    """Devuelve una sugerencia legible según el patrón del error."""
+    err_l = err.lower()
+    # IPv6 / dirección no asignable → usuario usó conexión directa en Vercel
+    if "cannot assign requested address" in err_l or (
+        ":" in err and "port 5432" in err_l
+    ):
+        return (
+            "Estás usando la conexión DIRECTA de Supabase (puerto 5432, IPv6 only), "
+            "que NO funciona en Vercel. Cambia DATABASE_URL al "
+            "**Transaction Pooler** (puerto 6543, IPv4): en Supabase → "
+            "Project Settings → Database → Connection string → Transaction pooler. "
+            "El hostname debe contener 'pooler.supabase.com' y el puerto 6543."
+        )
+    if "password authentication failed" in err_l:
+        return (
+            "La contraseña en DATABASE_URL no coincide con la del proyecto Supabase. "
+            "Resetéala en Supabase → Settings → Database → Reset database password "
+            "y actualiza la variable en Vercel."
+        )
+    if "could not translate host name" in err_l or "name or service not known" in err_l:
+        return (
+            "El hostname de DATABASE_URL es incorrecto. Verifica que esté tomado "
+            "directamente del panel de Supabase (Project Settings → Database)."
+        )
+    if "timeout" in err_l or "timed out" in err_l:
+        return (
+            "Tiempo de espera agotado al conectar. Verifica la región del pooler "
+            "y que el proyecto Supabase esté activo (no pausado)."
+        )
+    if "database_url no está configurada" in err_l:
+        return (
+            "Falta la variable DATABASE_URL. En Vercel: Settings → Environment "
+            "Variables → New. Ver supabase/README.md para el formato."
+        )
+    return None
 
 
 def _calcular_resultados(estudio: dict, muestras: list[dict]) -> dict:
