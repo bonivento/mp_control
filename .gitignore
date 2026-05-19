@@ -14,3 +14,7 @@ data/*.db
 .vscode/
 *.egg-info/
 .claude/
+
+# Carpeta de empaquetado para entrega (generada por docs/empaquetar_entrega.py)
+Codigo fuente/
+mp_control_entrega.zip
