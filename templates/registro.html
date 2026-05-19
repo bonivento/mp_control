@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Nuevo estudio{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Registrar nuevo estudio</h1>
+  <p>Completa la información de trazabilidad y carga los datos del proceso. Para variables continuas
+     ingresa los valores por subgrupo; para atributos, los conteos de defectuosos/defectos.</p>
+</section>
+
+<form id="form-estudio" class="card">
+  <h2>1. Trazabilidad</h2>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Nombre del estudio *</label>
+      <input type="text" name="nombre" required placeholder="Ej. Control de peso de mango Tommy">
+    </div>
+    <div class="form-group">
+      <label>Producto *</label>
+      <input type="text" name="producto" required placeholder="Mango, Sábila, Cilantro…">
+    </div>
+    <div class="form-group">
+      <label>Característica controlada *</label>
+      <input type="text" name="caracteristica" required placeholder="Peso, pH, Manchas…">
+    </div>
+    <div class="form-group">
+      <label>Unidad de medida</label>
+      <input type="text" name="unidad" placeholder="g, cm, °Bx, %, …">
+    </div>
+    <div class="form-group">
+      <label>Analista</label>
+      <input type="text" name="analista" placeholder="Nombre del analista">
+    </div>
+    <div class="form-group">
+      <label>Lote / Identificación</label>
+      <input type="text" name="lote" placeholder="Lote-001">
+    </div>
+  </div>
+
+  <h2 class="mt-3">2. Tipo de control</h2>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Tipo de dato *</label>
+      <select name="tipo" id="tipo" required>
+        <option value="variable">Variable continua</option>
+        <option value="atributo">Atributo (conteo)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tipo de gráfico *</label>
+      <select name="tipo_grafico" id="tipo_grafico" required>
+        <option value="xr">X̄-R (variables, n=2..9)</option>
+        <option value="xs">X̄-S (variables, n≥10)</option>
+        <option value="p">p (atributo, n variable)</option>
+        <option value="np">np (atributo, n constante)</option>
+        <option value="c">c (defectos por unidad)</option>
+        <option value="u">u (defectos / unidad, n variable)</option>
+      </select>
+    </div>
+    <div class="form-group" id="grupo-n">
+      <label>Tamaño de subgrupo (n)</label>
+      <input type="number" name="tamano_subgrupo" id="tamano_subgrupo" min="2" max="25" value="5">
+      <span class="form-hint">Para X̄-R/X̄-S. Entre 2 y 25.</span>
+    </div>
+    <div class="form-group" id="grupo-lsl">
+      <label>Límite inferior (LSL)</label>
+      <input type="number" name="lsl" step="any" placeholder="Opcional">
+    </div>
+    <div class="form-group" id="grupo-usl">
+      <label>Límite superior (USL)</label>
+      <input type="number" name="usl" step="any" placeholder="Opcional">
+    </div>
+  </div>
+
+  <div class="form-group mt-2">
+    <label>Notas</label>
+    <textarea name="notas" placeholder="Observaciones del estudio…"></textarea>
+  </div>
+
+  <h2 class="mt-3">3. Datos del proceso</h2>
+  <div class="alert alert-info" id="ayuda-datos">
+    Ingresa al menos <strong>25 subgrupos</strong> para una validación estadística adecuada.
+  </div>
+
+  <!-- Tabla dinámica para variables (X̄-R, X̄-S) -->
+  <div id="seccion-variables">
+    <div class="flex gap-md mb-1">
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-add-row">+ Agregar subgrupo</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-add-5">+5 subgrupos</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-add-25">+25 subgrupos</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-paste">Pegar desde Excel (TSV/CSV)</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-sample-data">Datos de ejemplo</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-clear">Limpiar</button>
+    </div>
+    <div style="overflow-x: auto;">
+      <table class="data-table" id="tabla-variables">
+        <thead><tr id="encabezados-vars"></tr></thead>
+        <tbody id="cuerpo-vars"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabla dinámica para atributos (p, np, c, u) -->
+  <div id="seccion-atributos" style="display:none">
+    <div class="flex gap-md mb-1">
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-add-row-attr">+ Agregar subgrupo</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-add-25-attr">+25 subgrupos</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-paste-attr">Pegar desde Excel</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-sample-attr">Datos de ejemplo</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-attr">Limpiar</button>
+    </div>
+    <div style="overflow-x: auto;">
+      <table class="data-table" id="tabla-atributos">
+        <thead>
+          <tr>
+            <th>Subgrupo</th>
+            <th id="th-defectos">Defectivos / Defectos</th>
+            <th id="th-tamano">Tamaño de muestra (n)</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-attr"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex gap-md mt-3">
+    <button type="submit" class="btn btn-primary">Guardar estudio y analizar</button>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+  </div>
+
+  <div id="form-feedback" class="mt-2"></div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/registro.js') }}"></script>
+{% endblock %}

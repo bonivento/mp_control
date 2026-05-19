@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Manual de usuario{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Manual de usuario</h1>
+  <p>Guía rápida para usar el sistema de Control Estadístico de Calidad aplicado a frutas,
+     hortalizas y plantas medicinales.</p>
+</section>
+
+<div class="card">
+  <h2>1. Tipos de control</h2>
+  <h3>Variables continuas</h3>
+  <p>Mediciones numéricas como peso (g), diámetro (cm), pH, °Brix, firmeza, humedad (%), etc.</p>
+  <ul>
+    <li><strong>X̄-R</strong>: subgrupos pequeños (n entre 2 y 9). Usa el rango como medida de variabilidad.</li>
+    <li><strong>X̄-S</strong>: subgrupos grandes (n ≥ 10). Usa la desviación estándar (más eficiente).</li>
+  </ul>
+
+  <h3>Atributos (conteos)</h3>
+  <p>Características clasificadas como conformes / no conformes (manchas, plagas, defectos visuales).</p>
+  <ul>
+    <li><strong>p</strong>: proporción de unidades defectuosas (tamaño de muestra variable).</li>
+    <li><strong>np</strong>: número de unidades defectuosas (tamaño de muestra constante).</li>
+    <li><strong>c</strong>: número de defectos por unidad (área de oportunidad constante).</li>
+    <li><strong>u</strong>: defectos por unidad (área variable).</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>2. Flujo recomendado</h2>
+  <ol>
+    <li>Crear nuevo estudio en <a href="{{ url_for('registro') }}">Nuevo Estudio</a>, completando trazabilidad
+        (producto, característica, analista, lote, unidad).</li>
+    <li>Seleccionar tipo de gráfico y, si aplica, definir límites de especificación (LSL/USL).</li>
+    <li>Ingresar al menos <strong>25 subgrupos</strong> (requisito del trabajo final).</li>
+    <li>Guardar — el sistema calculará automáticamente:
+      <ul>
+        <li>Gráficos de control con LSC / LC / LIC</li>
+        <li>Detección de puntos fuera de control y reglas de Nelson</li>
+        <li>Pruebas de normalidad (variables)</li>
+        <li>Índices de capacidad Cp/Cpk/Pp/Ppk (variables con LSL/USL)</li>
+      </ul>
+    </li>
+    <li>Exportar el reporte completo a Excel.</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>3. Interpretación de Cp / Cpk</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Valor de Cpk</th><th>Interpretación</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>≥ 1.67</td><td>Proceso de clase mundial</td></tr>
+      <tr><td>1.33 – 1.67</td><td>Proceso capaz</td></tr>
+      <tr><td>1.00 – 1.33</td><td>Adecuado, requiere control estricto</td></tr>
+      <tr><td>0.67 – 1.00</td><td>Parcialmente capaz, requiere mejoras</td></tr>
+      <tr><td>&lt; 0.67</td><td>Incapaz, acción inmediata</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>4. Reglas de Nelson para detección de patrones</h2>
+  <ul>
+    <li><strong>Regla 1</strong>: 1 punto fuera de ±3σ</li>
+    <li><strong>Regla 2</strong>: 9 puntos consecutivos del mismo lado de la línea central</li>
+    <li><strong>Regla 3</strong>: 6 puntos consecutivos con tendencia (creciente o decreciente)</li>
+    <li><strong>Regla 4</strong>: 14 puntos alternando arriba/abajo</li>
+    <li><strong>Regla 5</strong>: 2 de 3 puntos consecutivos más allá de ±2σ del mismo lado</li>
+    <li><strong>Regla 6</strong>: 4 de 5 puntos consecutivos más allá de ±1σ del mismo lado</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>5. Formato para pegar desde Excel</h2>
+  <p>En las pantallas de registro puedes pegar datos copiados directamente desde Excel:</p>
+  <ul>
+    <li><strong>X̄-R / X̄-S</strong>: cada fila = un subgrupo, cada columna = una medición.</li>
+    <li><strong>p, u</strong>: dos columnas — defectuosos / defectos y tamaño de muestra.</li>
+    <li><strong>np, c</strong>: una sola columna con los conteos.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>6. Limitaciones del entorno serverless</h2>
+  <div class="alert alert-warning">
+    <strong>Vercel</strong>: el sistema usa SQLite, y en Vercel el filesystem es efímero.
+    Los datos pueden perderse entre invocaciones. Para uso productivo se recomienda configurar una
+    base de datos PostgreSQL (Neon, Supabase o Vercel Postgres) mediante la variable
+    <code>DATABASE_URL</code>.
+  </div>
+</div>
+{% endblock %}

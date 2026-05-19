@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Control Estadístico de Calidad</h1>
+  <p>Sistema para monitoreo y análisis de variables y atributos de calidad en frutas, hortalizas
+     y plantas medicinales. Incluye pruebas de normalidad, gráficos de control X̄-R, X̄-S, p, np, c, u,
+     índices de capacidad del proceso, diagrama de Pareto y exportación a Excel.</p>
+  <div class="mt-3 flex gap-md">
+    <a href="{{ url_for('registro') }}" class="btn btn-accent">+ Nuevo estudio</a>
+    <a href="{{ url_for('manual') }}" class="btn btn-secondary">Ver manual</a>
+  </div>
+</section>
+
+<div class="card-grid">
+  <div class="metric-card">
+    <div class="label">Estudios registrados</div>
+    <div class="value">{{ estudios|length }}</div>
+  </div>
+  <div class="metric-card success">
+    <div class="label">Gráficos por variables</div>
+    <div class="value">{{ estudios | selectattr('tipo', 'equalto', 'variable') | list | length }}</div>
+  </div>
+  <div class="metric-card warn">
+    <div class="label">Gráficos por atributos</div>
+    <div class="value">{{ estudios | selectattr('tipo', 'equalto', 'atributo') | list | length }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="flex-between mb-2">
+    <h2 class="mb-0">Estudios registrados</h2>
+    <a href="{{ url_for('registro') }}" class="btn btn-primary btn-sm">+ Nuevo</a>
+  </div>
+
+  {% if estudios %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Producto</th>
+        <th>Tipo</th>
+        <th>Característica</th>
+        <th>Gráfico</th>
+        <th>Analista</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in estudios %}
+      <tr>
+        <td>{{ e.id }}</td>
+        <td><strong>{{ e.nombre }}</strong></td>
+        <td>{{ e.producto }}</td>
+        <td>
+          {% if e.tipo == 'variable' %}<span class="badge badge-blue">Variable</span>
+          {% else %}<span class="badge badge-orange">Atributo</span>{% endif %}
+        </td>
+        <td>{{ e.caracteristica }}{% if e.unidad %} ({{ e.unidad }}){% endif %}</td>
+        <td><span class="badge badge-purple">{{ e.tipo_grafico | upper }}</span></td>
+        <td>{{ e.analista or '—' }}</td>
+        <td>{{ e.fecha_creacion[:10] }}</td>
+        <td>
+          <a href="{{ url_for('estudio_detalle', estudio_id=e.id) }}" class="btn btn-secondary btn-sm">Abrir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info">
+    Aún no hay estudios registrados. Crea uno nuevo para comenzar el análisis estadístico.
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Herramientas estadísticas disponibles</h2>
+  <div class="card-grid">
+    <div>
+      <h3>Variables continuas</h3>
+      <ul>
+        <li><strong>X̄-R</strong>: subgrupos de tamaño pequeño (2-9)</li>
+        <li><strong>X̄-S</strong>: subgrupos grandes (≥10)</li>
+        <li>Pruebas de normalidad (Shapiro-Wilk, Anderson-Darling, D'Agostino)</li>
+        <li>Índices de capacidad (Cp, Cpk, Pp, Ppk)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Atributos / defectos</h3>
+      <ul>
+        <li><strong>p</strong>: proporción de defectuosos (n variable)</li>
+        <li><strong>np</strong>: número de defectuosos (n constante)</li>
+        <li><strong>c</strong>: número de defectos por unidad</li>
+        <li><strong>u</strong>: defectos por unidad (n variable)</li>
+        <li>Diagrama de Pareto</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Reglas de Nelson</h3>
+      <ul>
+        <li>Detección automática de procesos fuera de control</li>
+        <li>Tendencias y patrones no aleatorios</li>
+        <li>Análisis de causas asignables</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
