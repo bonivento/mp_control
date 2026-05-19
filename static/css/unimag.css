@@ -122,7 +122,9 @@ a:hover { color: var(--unimag-blue-700); text-decoration: underline; }
   height: 220px;
   background: radial-gradient(circle, var(--unimag-orange-300) 0%, transparent 70%);
   opacity: 0.18;
+  pointer-events: none;
 }
+.hero > * { position: relative; z-index: 1; }
 .hero h1 { margin: 0 0 0.5rem; font-size: 1.85rem; font-weight: 700; }
 .hero p { margin: 0; font-size: 1.05rem; opacity: 0.95; max-width: 720px; }
 
